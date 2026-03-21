@@ -3,7 +3,7 @@
 This project is part of the 'Environment of Services' course at AGH University of Krakow (summer semester, 2026).
 
 Authors:
-- Jakub Ciura,
+- Jakub Ciura ([@jciura](https://github.com/jciura)),
 - Bernard Gawor ([@Gawor270](https://github.com/Gawor270)),
 - Krzysztof Ligarski ([@kligarski](https://github.com/kligarski)),
 - Łukasz Zegar ([@lvk4z](https://github.com/lvk4z)).
