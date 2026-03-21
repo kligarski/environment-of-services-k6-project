@@ -15,3 +15,5 @@ Authors:
 ### 3.2. Observability
 ### 3.3. Vizualization
 ## 4. Demo high level architecture
+
+![High level architecture](docs/img/high-level-architecture.png)
