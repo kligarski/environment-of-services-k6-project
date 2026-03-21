@@ -4,9 +4,9 @@ This project is part of the 'Environment of Services' course at AGH University o
 
 Authors:
 - Jakub Ciura,
-- Bernard Gawor (@Gawor270),
-- Krzysztof Ligarski (@kligarski),
-- Łukasz Zegar (@lvk4z).
+- Bernard Gawor ([@Gawor270](https://github.com/Gawor270)),
+- Krzysztof Ligarski ([@kligarski](https://github.com/kligarski)),
+- Łukasz Zegar ([@lvk4z](https://github.com/lvk4z)).
 
 ## 1. Introduction
 ## 2. Theoretical background and technology stack
