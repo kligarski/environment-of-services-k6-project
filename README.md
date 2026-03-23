@@ -10,104 +10,122 @@ Authors:
 
 ## 1. Introduction
 ## 2. Theoretical background and technology stack
+### 2.1 Application Layer
 
-## 2.1 Warstwa aplikacji
+#### Chainlit
+A Python framework for building interactive web applications.  
+Used as the frontend interface in this project.
 
-### 2.1.1 Streamlit
-Pythonowy framework do budowania interaktywnych aplikacji webowych. W projekcie pełni rolę frontendowego interfejsu.
-
-Zalety:
-- Minimalna ilość kodu
-- Obsługuje streaming tokenów z LLM, odpowiedzi pojawiają się stopniowo
-- Alternatywy: **Chainlit** (stworzony specjalnie pod chatboty LLM)
-
-### 2.1.2 FastAPI
-Nowoczesny, wysokowydajny framework webowy dla Pythona oparty na standardzie ASGI. W projekcie pełni dwie role: backend aplikacji biznesowej (REST API) oraz warstwa transportowa dla serwera MCP (via FastMCP + SSE).
-
-Zalety:
-- Automatyczna dokumentacja OpenAPI
-- Asynchroniczny, natywnie integruje się z OpenTelemetry (opentelemetry-instrumentation-fastapi) 
-
-### 2.1.3 SQLite
-Lekka, bezserwerowa relacyjna baza danych. Warstwa persystencji dla backendu, przechowuje dane domenowe (np. produkty w magazynie).
-
-Zalety:
-- Zero konfiguracji, pojedynczy plik, odpowiednie do demo
-- W razie potrzeby łatwa migracja na inne bazy danych
+**Advantages:**
+- Minimal amount of code required  
+- Supports streaming tokens from LLMs (progressive responses)  
 
 ---
 
-## 2.2 AI i orkiestracja
+#### FastAPI
+A modern, high-performance web framework for Python based on the ASGI standard. In the project, it serves two roles: the backend of the business application (REST API) and the transport layer for the MCP server (via FastMCP + SSE).
 
-### 2.2.1 LangChain
-Framework do budowania aplikacji opartych na LLM. Działa jako orkiestrator agenta i klient MCP. Łączy model językowy z narzędziami udostępnianymi przez serwer MCP.
-
-- Agenty w stylu ReAct: LLM iteracyjnie decyduje które narzędzie wywołać na podstawie opisu narzędzi z serwera MCP
-- Pakiet **langchain-mcp-adapters** automatycznie konwertuje schematy MCP na obiekty narzędzi LangChain
-- Łatwa zamiana LLM (Gemini, Ollama, OpenAI) przez jedną zmianę konfiguracji
-
-### 2.2.2 LLM - Gemini API / Ollama
-
-**Google Gemini API** - chmurowe modele językowe Google.
-
-- Natywne wsparcie function/tool calling
-- Duże okno kontekstu
-- Dostęp przez SDK **google-generativeai**
-
-**Ollama** - uruchamianie lokalnych modeli LLM. Opcjonalny backend dla środowisk offline lub prywatnych.
-
-- Pełna prywatność, brak kosztów API
-- Modele: Llama 3, Mistral, Phi-3
-- Interfejs kompatybilny z OpenAI SDK
-
-### 2.2.3 FastMCP
-Biblioteka Pythona upraszczająca budowanie serwerów MCP. 
-
-- Narzędzie definiuje się jednym dekoratorem **@mcp.tool()** na zwykłej funkcji Pythona 
-- Montując FastMCP wewnątrz FastAPI, cały ruch HTTP (w tym wiadomości protokołu MCP) przechodzi przez middleware FastAPI
-- Protokół MCP definiuje ustandaryzowany interfejs dla listowania narzędzi i ich wykonywania czyli dokładnie to, co atakują skrypty testowe k6
+**Advantages:**
+- Automatic OpenAPI documentation  
+- Asynchronous execution  
+- Native OpenTelemetry integration  
 
 ---
 
-## 2.3 Testowanie
+#### SQLite
+A lightweight, serverless relational database. Persistence layer for the backend, stores domain data (e.g., products in inventory).
 
-### 2.3.1 Grafana k6
-Open-source'owe narzędzie do testów obciążeniowych i wydajnościowych napisane w Go, ze skryptami testowymi w JavaScript. Zaprojektowane do osadzenia w pipeline'ach CI/CD, natywnie integruje się ze stackiem observability Grafany.
-
-- Wirtualni użytkownicy (VU) - współbieżne goroutines, każda niezależnie wykonuje skrypt testowy, łatwe symulowanie dziesiątek równoległych agentów AI
-- Wbudowane metryki: **http_req_duration**, **http_req_failed**, **iteration_duration**
-- Eksport metryk do OpenTelemetry, Prometheus remote write
-
-### 2.3.2 xk6-mcp
-Rozszerzenie k6 dodające natywne możliwości klienta MCP do skryptów testowych. Pozwala komunikować się z serwerem MCP pełnym protokołem zamiast surowych wywołań HTTP.
-
-- Bez xk6-mcp trzeba by ręcznie konstruować wiadomości JSON-RPC przez HTTP/SSE
-- Pozwala walidować nie tylko latencję, ale też poprawność na poziomie protokołu: czy schematy narzędzi są prawidłowe, czy kody błędów są zwracane poprawnie
-
-https://github.com/grafana/xk6-mcp
+**Advantages:**
+- Zero configuration, single file, suitable for demo
+- Easy migration to other databases  
 
 ---
 
-## 2.4 Stack observability
+### 2.2 AI and Orchestration
 
-### 2.4.1 OpenTelemetry
-Neutralny technologicznie framework CNCF do generowania, zbierania i eksportowania danych telemetrycznych (traces, metryki, logi). Centralny hub zbierający dane ze wszystkich komponentów.
+#### LangChain
+A framework for building applications based on LLM. Acts as the agent orchestrator and MCP client. Connects the language model with tools exposed by the MCP server.
 
-### 2.4.2 Prometheus
-Open-source'owy toolkit do monitoringu i alertowania. Przechowuje szeregi czasowe metryk i udostępnia PromQL do ich odpytywania.
-Dwa tryby ingestii: Remote Write (kolektor pcha dane) lub Scrape (Prometheus odpytuje endpointy '/metrics')
-
-### 2.4.3 Grafana
-Open-source'owa platforma analityczna i wizualizacyjna. Łączy się z Prometheusem i renderuje konfigurowalne dashboardy.
-Natywny plugin k6 dostarcza gotowy dashboard z wynikami testu (rozkład czasu odpowiedzi, liczba VU, współczynnik błędów)
+**Features:**
+- ReAct-style agents: LLM iteratively decides which tool to call based on tool descriptions from the MCP server
+- Package langchain-mcp-adapters automatically converts MCP schemas into LangChain tool objects 
+- Easy LLM switching (Gemini, Ollama, OpenAI)  
 
 ---
 
-## 2.5 Infrastruktura - Kubernetes
+#### LLM Backends
 
-Platforma do orkiestracji kontenerów. Cały stack demo - aplikacja, serwer MCP, operator k6, kolektor OTel, Prometheus i Grafana uruchamiany jest na klastrze Kubernetes. 
+**Google Gemini API** - cloud-based language models from Google.
+- Native function/tool calling  
+- Large context window  
+- Access via `google-generativeai` SDK  
 
-**k6 Operator** pozwala deklarować test obciążeniowy jako manifest Kubernetes, testy mogą być wyzwalane przez pipeline CI przez 'kubectl apply'
+**Ollama** - running local LLM models. Optional backend for offline or private environments.
+- No API costs, full privacy  
+- Models: Llama 3, Mistral, Phi-3  
+- OpenAI-compatible API  
+
+---
+
+#### FastMCP
+Python library for building MCP servers.
+
+**Features:**
+- Define tools using `@mcp.tool()` decorator  
+- Integrated with FastAPI  
+- Implements MCP protocol for tool discovery and execution  
+
+--- 
+
+### 2.3 Testing
+
+#### Grafana k6
+An open-source tool for load and performance testing written in Go, with test scripts in JavaScript. Designed for embedding in CI/CD pipelines, natively integrates with the Grafana observability stack.
+
+**Features:**
+- Virtual users (VU) - concurrent goroutines, each independently executes a test script, easy simulation of dozens of parallel AI agents
+- Built-in metrics:
+  - http_req_duration
+  - http_req_failed
+  - iteration_duration
+- Integration with OpenTelemetry and Prometheus  
+
+---
+
+#### xk6-mcp
+A k6 extension adding native MCP client capabilities to test scripts. Allows communication with the MCP server using the full protocol instead of raw HTTP calls.
+
+- Without xk6-mcp, JSON-RPC messages would have to be manually constructed over HTTP/SSE
+- Allows validation not only of latency, but also correctness at the protocol level: whether tool schemas are valid, whether error codes are returned correctly
+
+🔗 https://github.com/grafana/xk6-mcp  
+
+---
+
+### 2.4 Observability Stack
+
+#### OpenTelemetry
+A technology-neutral CNCF framework for generating, collecting, and exporting telemetry data (traces, metrics, logs). Central hub collecting data from all components.
+
+---
+
+#### Prometheus
+An open-source toolkit for monitoring and alerting. Stores time series metrics and provides PromQL for querying.
+Two ingestion modes: Remote Write (collector pushes data) or Scrape (Prometheus queries '/metrics' endpoints)
+
+---
+
+#### Grafana
+An open-source analytics and visualization platform. Connects to Prometheus and renders configurable dashboards.
+Native k6 plugin provides a ready dashboard with test results (response time distribution, number of VU, error rate)
+
+---
+
+### 2.5 Infrastructure – Kubernetes
+
+A platform for container orchestration. The entire demo stack - application, MCP server, k6 operator, OTel collector, Prometheus and Grafana - is run on a Kubernetes cluster.
+
+k6 Operator allows defining a load test as a Kubernetes manifest, tests can be triggered by CI pipeline via 'kubectl apply'
 
 ---
 ## 3. Demo concept description
