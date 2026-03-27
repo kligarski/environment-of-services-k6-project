@@ -1,5 +1,4 @@
 # K6 - Using K6 project for application testing
-
 This project is part of the 'Environment of Services' course at AGH University of Krakow (summer semester, 2026).
 
 Authors:
@@ -16,7 +15,6 @@ As MCP servers become more widespread, it becomes increasingly important to eval
 
 ## 2. Theoretical background and technology stack
 ### 2.1 Application Layer
-
 #### Chainlit
 A Python framework for building interactive web applications.  
 Used as the frontend interface in this project.
@@ -24,8 +22,6 @@ Used as the frontend interface in this project.
 **Advantages:**
 - Minimal amount of code required  
 - Supports streaming tokens from LLMs (progressive responses)  
-
----
 
 #### FastAPI
 A modern, high-performance web framework for Python based on the ASGI standard. In the project, it serves two roles: the backend of the business application (REST API) and the transport layer for the MCP server (via FastMCP + SSE).
@@ -35,8 +31,6 @@ A modern, high-performance web framework for Python based on the ASGI standard. 
 - Asynchronous execution  
 - Native OpenTelemetry integration  
 
----
-
 #### SQLite
 A lightweight, serverless relational database. Persistence layer for the backend, stores domain data (e.g., products in inventory).
 
@@ -44,10 +38,7 @@ A lightweight, serverless relational database. Persistence layer for the backend
 - Zero configuration, single file, suitable for demo
 - Easy migration to other databases  
 
----
-
 ### 2.2 AI and Orchestration
-
 #### LangChain
 A framework for building applications based on LLM. Acts as the agent orchestrator and MCP client. Connects the language model with tools exposed by the MCP server.
 
@@ -56,10 +47,7 @@ A framework for building applications based on LLM. Acts as the agent orchestrat
 - Package langchain-mcp-adapters automatically converts MCP schemas into LangChain tool objects 
 - Easy LLM switching (Gemini, Ollama, OpenAI)  
 
----
-
 #### LLM Backends
-
 **Google Gemini API** - cloud-based language models from Google.
 - Native function/tool calling  
 - Large context window  
@@ -70,8 +58,6 @@ A framework for building applications based on LLM. Acts as the agent orchestrat
 - Models: Llama 3, Mistral, Phi-3  
 - OpenAI-compatible API  
 
----
-
 #### FastMCP
 Python library for building MCP servers.
 
@@ -80,10 +66,7 @@ Python library for building MCP servers.
 - Integrated with FastAPI  
 - Implements MCP protocol for tool discovery and execution  
 
---- 
-
 ### 2.3 Testing
-
 #### Grafana k6
 An open-source tool for load and performance testing written in Go, with test scripts in JavaScript. Designed for embedding in CI/CD pipelines, natively integrates with the Grafana observability stack.
 
@@ -95,8 +78,6 @@ An open-source tool for load and performance testing written in Go, with test sc
   - iteration_duration
 - Integration with OpenTelemetry and Prometheus  
 
----
-
 #### xk6-mcp
 A k6 extension adding native MCP client capabilities to test scripts. Allows communication with the MCP server using the full protocol instead of raw HTTP calls.
 
@@ -105,34 +86,23 @@ A k6 extension adding native MCP client capabilities to test scripts. Allows com
 
 🔗 https://github.com/grafana/xk6-mcp  
 
----
-
 ### 2.4 Observability Stack
-
 #### OpenTelemetry
 A technology-neutral CNCF framework for generating, collecting, and exporting telemetry data (traces, metrics, logs). Central hub collecting data from all components.
-
----
 
 #### Prometheus
 An open-source toolkit for monitoring and alerting. Stores time series metrics and provides PromQL for querying.
 Two ingestion modes: Remote Write (collector pushes data) or Scrape (Prometheus queries '/metrics' endpoints)
 
----
-
 #### Grafana
 An open-source analytics and visualization platform. Connects to Prometheus and renders configurable dashboards.
 Native k6 plugin provides a ready dashboard with test results (response time distribution, number of VU, error rate)
 
----
-
 ### 2.5 Infrastructure – Kubernetes
-
 A platform for container orchestration. The entire demo stack - application, MCP server, k6 operator, OTel collector, Prometheus and Grafana - is run on a Kubernetes cluster.
 
 k6 Operator allows defining a load test as a Kubernetes manifest, tests can be triggered by CI pipeline via 'kubectl apply'
 
----
 ## 3. Demo concept description
 ### 3.1. Application
 The application used to interact with an AI model is a simple chatbot. Its interface is implemented using [Streamlit](https://streamlit.io/), which is an open-source Python framework that allows to deliver interactive data apps in only a few lines of code.
@@ -142,6 +112,7 @@ The chatbot uses LangChain to intergrate LLM with external tools that are availa
 The MCP server is implemented using FastMCP and exposes a set of tools that are related to operations implemented in backend service. These operations allow user to perform actions such as retrieving product information, listing available items and calculating shipping costs.
 
 To evaluate the behavior of the MCP server under load, testing will be performed using k6 together with xk6-mcp. The testing environment will simulate multiple AI agents sending requests to the MCP server simultaneously. This allows the system to mimic realistic interaction patterns and analyze how the MCP server performs when handling concurrent requests generated by multiple agents.
+
 ### 3.2. Observability
 In order to analyze the behavior and performance of the system, the demo is equipped with an observability layer based on OpenTelemetry, which allows to collect telemtry data such as metrics, traces and logs.
 
@@ -153,6 +124,37 @@ This setup enables the collection of various performance indicators from whole s
 To make analysis of the collected telemetry data easier, the system uses Grafana for visualization. Grafana connects to Prometheus and provides interactive dashboard along with real-time metrics generated by the system.
 
 The dashboards present key performance indicators such as request throughput, response times, error rates, and resource utilization. By analyzing these metrics, it is possible to evaluate how MCP server and backend respond to changes. 
-## 4. Demo high level architecture
 
+## 4. Demo high level architecture
 ![High level architecture](docs/img/high-level-architecture.png)
+
+## 5. Demo detailed architecture
+WIP
+
+## 6. Environment configuration description
+WIP
+
+## 7. Installation method
+WIP
+
+## 8. Demo deployment steps:
+### 8.1. Configuration set-up
+WIP
+
+### 8.2. Data preparation
+WIP
+
+## 9. Demo description
+### 9.1. Execution procedure
+WIP
+
+### 9.2. Results presentation
+<!-- All prompts used with AI models should be listed, screens from Grafana dashboard should be attached. -->
+WIP
+
+## 10. Summary
+<!-- conclusions -->
+WIP
+
+## 11. References
+WIP
