@@ -105,7 +105,7 @@ k6 Operator allows defining a load test as a Kubernetes manifest, tests can be t
 
 ## 3. Demo concept description
 ### 3.1. Application
-The application used to interact with an AI model is a simple chatbot. Its interface is implemented using [Streamlit](https://streamlit.io/), which is an open-source Python framework that allows to deliver interactive data apps in only a few lines of code.
+The application used to interact with an AI model is a simple chatbot. Its interface is implemented using Chainlit, which is an open-source Python framework that allows to deliver interactive data apps in only a few lines of code.
 
 The chatbot uses LangChain to intergrate LLM with external tools that are available through MCP server. The LLM is responsible for interpreting user's request and choosing proper tool defined in mentioned previously MCP server.
 
