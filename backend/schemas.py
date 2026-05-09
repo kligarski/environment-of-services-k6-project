@@ -16,4 +16,23 @@ class Product(ProductBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class ProductItem(BaseModel):
+    id: int
+    count: int
+
+
+class ShippingQuoteRequest(BaseModel):
+    products: List[ProductItem]
+
+
+class ShippingProviderQuote(BaseModel):
+    provider: str
+    price: Optional[float]
+    estimated_days: str
+
+
+class ShippingQuoteResponse(BaseModel):
+    quotes: List[ShippingProviderQuote]
