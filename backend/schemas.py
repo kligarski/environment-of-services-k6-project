@@ -36,3 +36,20 @@ class ShippingProviderQuote(BaseModel):
 
 class ShippingQuoteResponse(BaseModel):
     quotes: List[ShippingProviderQuote]
+
+
+class PackagingRequest(BaseModel):
+    items: List[ProductItem]
+
+
+class PackagingBox(BaseModel):
+    box_type: str
+    items: List[ProductItem]
+    total_weight_g: float
+    total_volume_cm3: float
+
+
+class PackagingResponse(BaseModel):
+    boxes: List[PackagingBox]
+    total_volume_cm3: float
+    total_weight_g: float

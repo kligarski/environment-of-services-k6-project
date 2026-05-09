@@ -1,5 +1,7 @@
 import asyncio
+import hashlib
 import random
+import time
 from typing import List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -129,3 +131,84 @@ async def get_shipping_quotes(
         )
 
     return schemas.ShippingQuoteResponse(quotes=quotes)
+
+
+def simulate_cpu_load(item_count: int):
+    """
+    Simulates a CPU-bound task by performing redundant calculations.
+    Growth is exponential: complexity ~ O(1.5^n) to simulate heavy algorithms.
+    """
+    # Exponential scaling: 50k * (1.5 ^ item_count)
+    # 1 item: 75k iterations (~ms)
+    # 10 items: ~2.8M iterations (~0.5-1s)
+    # 20 items: ~166M iterations (several seconds)
+    base_iterations = 50_000
+    iterations = int(base_iterations * (1.5 ** min(item_count, 25)))
+
+    result = 0
+    for i in range(iterations):
+        result += (i * i) % 123
+        if i % 1000 == 0:
+            hashlib.sha256(str(i).encode()).hexdigest()
+    return result
+
+
+@app.post("/packaging/optimize", response_model=schemas.PackagingResponse)
+async def optimize_packaging(
+    request: schemas.PackagingRequest, db: Session = Depends(get_db)
+):
+    product_ids = [p.id for p in request.items]
+    db_products = {
+        p.id: p for p in db.query(Product).filter(Product.id.in_(product_ids)).all()
+    }
+
+    if not db_products:
+        raise HTTPException(status_code=404, detail="No products found for given IDs")
+
+    total_weight = 0.0
+    total_volume = 0.0
+    total_items_count = sum(p.count for p in request.items)
+
+    # 1. Simulating heavy CPU-bound optimization logic
+    # This call is synchronous and DELIBERATELY blocks the FastAPI event loop
+    simulate_cpu_load(total_items_count)
+
+    # 2. Simple Heuristic: Pack into boxes based on total volume
+    # Max volume per standard box is 50,000 cm3
+    BOX_CAPACITY = 50000.0
+
+    for item in request.items:
+        product = db_products.get(item.id)
+        if product:
+            total_weight += product.weight * item.count
+            total_volume += (product.dim_x * product.dim_y * product.dim_z) * item.count
+
+    # Distribute into boxes (very simple logic)
+    num_boxes = int(total_volume // BOX_CAPACITY) + 1
+    boxes = []
+
+    # Simple distribution of items across boxes (just for show)
+    for i in range(num_boxes):
+        box_items = []
+        # In this simple heuristic, we just partition the requested items
+        # proportionally across boxes for the response structure
+        for item in request.items:
+            count_in_box = item.count // num_boxes
+            if i == num_boxes - 1:  # Last box gets the remainder
+                count_in_box += item.count % num_boxes
+
+            if count_in_box > 0:
+                box_items.append(schemas.ProductItem(id=item.id, count=count_in_box))
+
+        boxes.append(
+            schemas.PackagingBox(
+                box_type="EcoBox-Standard" if total_volume < 100000 else "MaxiPallet",
+                items=box_items,
+                total_weight_g=total_weight / num_boxes,
+                total_volume_cm3=total_volume / num_boxes,
+            )
+        )
+
+    return schemas.PackagingResponse(
+        boxes=boxes, total_volume_cm3=total_volume, total_weight_g=total_weight
+    )

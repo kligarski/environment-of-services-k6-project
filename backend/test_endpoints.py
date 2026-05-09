@@ -53,6 +53,27 @@ def test_shipping_quote_invalid_product():
     assert response.status_code == 404
 
 
+def test_packaging_optimize():
+    # Get a product first to have a valid ID
+    products = client.get("/products").json()
+    if not products:
+        print("No products found, cannot test packaging optimize")
+        return
+
+    product_id = products[0]["id"]
+    # Test with small number of items to keep test fast
+    payload = {"items": [{"id": product_id, "count": 2}]}
+
+    response = client.post("/packaging/optimize", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "boxes" in data
+    assert len(data["boxes"]) > 0
+    assert "total_volume_cm3" in data
+    assert "total_weight_g" in data
+    print("Packaging optimize test data:", data)
+
+
 if __name__ == "__main__":
     try:
         print("Running health check test...")
@@ -63,6 +84,8 @@ if __name__ == "__main__":
         test_shipping_quote()
         print("Running invalid product test...")
         test_shipping_quote_invalid_product()
+        print("Running packaging optimize test...")
+        test_packaging_optimize()
         print("\nAll tests passed successfully!")
     except Exception as e:
         print(f"\nTests failed: {e}")

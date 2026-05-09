@@ -30,5 +30,5 @@ Swagger documentation: `http://localhost:8000/docs`.
 
 - `GET /health`: Basic health check.
 - `GET /products?query={name}`: Search products by name (case-insensitive).
-- `POST /shipping/quote`: (Planned) Calculate shipping costs for multiple providers.
-- `POST /packaging/optimize`: (Planned) Suggest box sizes for a set of items.
+- `POST /shipping/quote`: Calculate shipping costs for multiple providers.
+- `POST /packaging/optimize`: Suggest box sizes for a set of items.
