@@ -1,81 +1,90 @@
 name,price,weight,dim_x,dim_y,dim_z
-Samsing Tablet Ultra,2344.43,0.53,26.6,19.1,0.7
-Samsing Smartphone Max,213.71,0.19,14.4,6.7,0.8
-Samsing Smartwatch Max,1008.25,0.05,4.3,4.3,1.1
-Samsing Smartwatch Ultra,1052.61,0.05,4.0,4.0,1.0
-Samsing Smartphone Lite,2082.59,0.21,15.5,7.2,0.8
-Sonny Webcam Ultra,1143.01,0.2,10.1,5.1,5.1
-Gugle Tablet Max,646.33,0.46,23.1,16.6,0.6
-Dellta Laptop Max,2102.17,1.37,32.0,22.9,1.8
-Asos Headphones Ultra,437.28,0.33,21.7,19.6,8.7
-Asos Gaming-PC Ultra,1263.28,9.82,49.1,19.6,44.2
-Asos Monitor,1265.55,4.75,56.9,38.0,14.2
-H-Pee Laptop,1018.19,1.63,38.1,27.2,2.2
-Asos Monitor Max,2476.2,4.81,57.7,38.4,14.4
-Pear Smartwatch Ultra,1066.32,0.05,4.0,4.0,1.0
-Gugle Smartphone Lite,1791.5,0.21,15.7,7.3,0.8
-Novolo Laptop Air,1544.81,1.4,32.6,23.3,1.9
-Dellta Laptop Ultra,1936.79,1.46,34.1,24.4,1.9
-Dellta Monitor Max,646.32,5.2,62.4,41.6,15.6
-Sonny Headphones,1756.25,0.32,21.6,19.4,8.6
-Pear Tablet,1972.87,0.49,24.6,17.7,0.7
-Macrosoft Tablet,1991.0,0.5,24.9,17.9,0.7
-Gugle Tablet Air,1767.59,0.49,24.5,17.6,0.7
-Gugle Smartphone Air,1992.91,0.2,15.4,7.2,0.8
-Dellta Monitor Pro,1640.02,4.55,54.6,36.4,13.6
-Asos Laptop,2348.66,1.36,31.7,22.6,1.8
-Macrosoft Laptop Ultra,1633.24,1.58,36.8,26.3,2.1
-Sonny Headphones Air,1318.13,0.32,21.6,19.5,8.7
-Pear Tablet Lite,1690.91,0.51,25.6,18.4,0.7
-Dellta Router Pro,368.21,0.78,19.4,19.4,4.9
-Pear Smartphone Air,1555.2,0.21,16.0,7.5,0.9
-Asos Gaming-PC Lite,1519.16,9.92,49.6,19.8,44.6
-Gugle Router Lite,2211.34,0.85,21.3,21.3,5.3
-Sonny Webcam Air,2342.66,0.2,10.1,5.0,5.0
-Asos Laptop Lite,162.37,1.59,37.2,26.5,2.1
-Gugle Router,1967.96,0.82,20.4,20.4,5.1
-Novolo Laptop Lite,662.93,1.36,31.7,22.6,1.8
-Dellta Monitor,559.97,5.19,62.2,41.5,15.6
-Macrosoft Tablet Pro,1550.84,0.51,25.5,18.4,0.7
-Asos Laptop Pro,1132.4,1.59,37.1,26.5,2.1
-Samsing Monitor Air,984.14,4.53,54.3,36.2,13.6
-Vintage Mechanical Typewriter,450.0,5.2,40.0,35.0,15.0
-Asos Monitor Air,1497.72,4.56,54.7,36.5,13.7
-H-Pee Monitor Lite,2474.76,5.35,64.3,42.8,16.1
-Dellta Laptop,698.92,1.43,33.3,23.8,1.9
-Novolo Monitor,2058.62,4.96,59.5,39.7,14.9
-Asos Gaming-PC Pro,1317.96,10.24,51.2,20.5,46.1
-Pear Tablet Air,1583.88,0.46,22.9,16.5,0.6
-Gugle Router Air,688.37,0.8,19.9,19.9,5.0
-H-Pee Laptop Ultra,2138.4,1.6,37.2,26.6,2.1
-Asos Headphones Air,388.04,0.3,20.1,18.0,8.0
-Novolo Laptop Max,1078.42,1.47,34.4,24.6,2.0
-Sonny Monitor Max,1168.86,4.52,54.3,36.2,13.6
-Samsing Smartwatch Air,696.39,0.05,3.8,3.8,0.9
-H-Pee Monitor,1984.65,4.56,54.7,36.5,13.7
-Macrosoft Laptop,375.36,1.36,31.7,22.7,1.8
-Asos Laptop Max,1419.65,1.64,38.2,27.3,2.2
-H-Pee Monitor Air,495.76,5.3,63.6,42.4,15.9
-Pear Smartwatch Max,1782.9,0.05,3.8,3.8,1.0
-Pear Smartwatch,2153.49,0.05,3.8,3.8,0.9
-Pear Smartwatch Lite,1282.79,0.05,4.1,4.1,1.0
-Pear Smartphone Pro,1682.76,0.2,15.0,7.0,0.8
-Samsing Monitor Pro,1335.32,4.76,57.1,38.1,14.3
-Sonny Monitor Pro,356.3,4.7,56.4,37.6,14.1
-Asos Headphones Pro,1676.28,0.3,20.0,18.0,8.0
-Dellta Monitor Lite,928.27,4.97,59.6,39.8,14.9
-Dellta Router Max,326.2,0.84,21.1,21.1,5.3
-H-Pee Monitor Ultra,1635.78,4.65,55.8,37.2,13.9
+Sonny Webcam Air,157.69,0.19,9.6,4.8,4.8
+Pear Smartwatch Ultra,705.36,0.05,4.3,4.3,1.1
+Macrosoft Tablet Lite,361.07,0.49,24.6,17.7,0.7
+Pear Smartphone Air,958.37,0.18,13.7,6.4,0.7
+Novolo Laptop Air,1238.59,1.36,31.7,22.6,1.8
+Sonny Monitor Ultra,741.65,5.2,62.4,41.6,15.6
+Sonny Monitor,407.59,4.84,58.0,38.7,14.5
+Gugle Tablet Max,662.47,0.52,25.8,18.6,0.7
+Sonny Headphones Lite,193.3,0.3,20.0,18.0,8.0
+Dellta Monitor,296.66,5.38,64.6,43.0,16.1
+Samsing Monitor Max,560.67,4.71,56.6,37.7,14.1
+Asos Laptop Lite,878.44,1.45,33.9,24.2,1.9
+Asos Gaming-PC Max,2941.05,10.74,53.7,21.5,48.3
+Pear Smartphone Max,1330.16,0.21,15.6,7.3,0.8
+Dellta Monitor Ultra,515.44,5.45,65.5,43.6,16.4
+Asos Headphones Ultra,369.99,0.29,19.0,17.1,7.6
+Pear Tablet Air,637.75,0.53,26.7,19.2,0.7
+Macrosoft Tablet Air,575.27,0.52,25.9,18.6,0.7
+Gugle Tablet Lite,305.19,0.54,27.2,19.6,0.8
+Samsing Monitor Lite,257.23,4.68,56.2,37.5,14.0
+Asos Headphones Air,219.21,0.29,19.3,17.4,7.7
+Samsing Tablet Air,521.37,0.5,25.2,18.1,0.7
+Asos Laptop Air,1307.77,1.49,34.7,24.8,2.0
+Asos Laptop Max,1889.17,1.61,37.6,26.9,2.1
+Samsing Smartwatch Ultra,554.09,0.05,4.0,4.0,1.0
+Samsing Monitor Air,392.28,4.68,56.1,37.4,14.0
 Quantum Computing Starter Kit,9999.99,25.0,100.0,80.0,60.0
-Dellta Router Ultra,753.07,0.74,18.6,18.6,4.7
-Samsing Smartwatch,1475.81,0.05,4.4,4.4,1.1
-Pear Smartphone Lite,399.19,0.2,14.8,6.9,0.8
-Novolo Monitor Lite,1240.46,5.3,63.6,42.4,15.9
-Golden Industrial Scissors,120.0,0.4,25.0,10.0,1.5
 Cybernetic Eye Implant (Mock),299.0,0.1,3.0,3.0,2.5
-H-Pee Laptop Pro,859.24,1.53,35.6,25.5,2.0
-Macrosoft Laptop Lite,813.83,1.38,32.1,22.9,1.8
-Asos Monitor Lite,1254.4,5.44,65.2,43.5,16.3
-Samsing Tablet Lite,2266.7,0.52,26.1,18.8,0.7
-H-Pee Laptop Air,417.49,1.58,37.0,26.4,2.1
-Samsing Tablet Air,1525.45,0.55,27.5,19.8,0.8
+Sonny Headphones,292.52,0.32,21.1,19.0,8.5
+Novolo Monitor Pro,359.89,4.82,57.9,38.6,14.5
+Golden Industrial Scissors,120.0,0.4,25.0,10.0,1.5
+Gugle Smartphone Pro,864.97,0.2,15.1,7.0,0.8
+Samsing Tablet Ultra,884.47,0.5,25.0,18.0,0.7
+Asos Gaming-PC Air,2293.06,9.8,49.0,19.6,44.1
+Gugle Router Lite,115.54,0.77,19.3,19.3,4.8
+Macrosoft Tablet Ultra,926.97,0.53,26.5,19.1,0.7
+Gugle Router Ultra,293.39,0.72,18.1,18.1,4.5
+Macrosoft Laptop Max,2292.1,1.6,37.3,26.6,2.1
+Pear Smartwatch Lite,253.5,0.05,3.6,3.6,0.9
+Sonny Webcam Pro,183.17,0.21,10.3,5.1,5.1
+Samsing Tablet Lite,350.31,0.47,23.3,16.8,0.7
+Asos Monitor Ultra,549.0,4.98,59.8,39.9,14.9
+Dellta Router Ultra,261.78,0.87,21.8,21.8,5.5
+Macrosoft Laptop Pro,1957.94,1.62,37.8,27.0,2.2
+Novolo Monitor Air,293.55,5.16,62.0,41.3,15.5
+Macrosoft Tablet,540.22,0.46,22.9,16.5,0.6
+Macrosoft Laptop Ultra,2801.26,1.42,33.1,23.6,1.9
+Asos Headphones Lite,135.45,0.31,20.9,18.9,8.4
+Gugle Tablet,419.03,0.51,25.7,18.5,0.7
+Samsing Smartphone Max,1041.28,0.19,14.4,6.7,0.8
+Novolo Laptop Pro,1444.11,1.53,35.7,25.5,2.0
+Gugle Tablet Pro,587.33,0.5,25.0,18.0,0.7
+Macrosoft Laptop,1582.59,1.58,36.9,26.3,2.1
+Asos Monitor Air,338.14,4.75,57.0,38.0,14.2
+Gugle Router,164.87,0.77,19.2,19.2,4.8
+H-Pee Monitor Lite,183.89,5.02,60.2,40.1,15.0
+Sonny Webcam,145.94,0.19,9.3,4.6,4.6
+Pear Smartwatch Max,582.31,0.05,3.6,3.6,0.9
+Samsing Tablet,456.36,0.52,25.9,18.7,0.7
+Dellta Laptop Lite,822.76,1.39,32.5,23.2,1.9
+H-Pee Monitor,278.15,5.24,62.8,41.9,15.7
+Sonny Webcam Max,202.11,0.19,9.7,4.9,4.9
+Gugle Smartphone Ultra,1158.08,0.2,15.3,7.2,0.8
+Sonny Headphones Pro,369.75,0.32,21.6,19.4,8.6
+Sonny Headphones Ultra,518.8,0.32,21.0,18.9,8.4
+Novolo Monitor Ultra,485.87,5.47,65.7,43.8,16.4
+Dellta Router Air,169.17,0.82,20.5,20.5,5.1
+Asos Monitor,300.17,4.65,55.8,37.2,14.0
+H-Pee Monitor Pro,360.29,4.82,57.8,38.5,14.5
+Gugle Router Max,240.82,0.78,19.4,19.4,4.8
+Vintage Mechanical Typewriter,450.0,5.2,40.0,35.0,15.0
+Pear Tablet Ultra,1100.5,0.51,25.3,18.2,0.7
+Novolo Laptop,1078.38,1.63,38.0,27.2,2.2
+Sonny Monitor Air,456.89,5.49,65.9,43.9,16.5
+Novolo Laptop Lite,742.15,1.49,34.8,24.8,2.0
+Dellta Monitor Lite,212.85,4.73,56.8,37.8,14.2
+Pear Tablet Max,902.06,0.48,24.2,17.4,0.7
+Samsing Smartphone,692.24,0.21,15.7,7.3,0.8
+Asos Gaming-PC Pro,2516.56,10.84,54.2,21.7,48.8
+Dellta Laptop Ultra,2203.73,1.38,32.3,23.1,1.8
+Gugle Smartphone,662.83,0.21,16.0,7.5,0.9
+Sonny Monitor Lite,294.92,5.13,61.6,41.0,15.4
+Asos Monitor Pro,379.87,4.69,56.3,37.5,14.1
+Novolo Monitor Lite,183.43,5.31,63.8,42.5,15.9
+Samsing Smartwatch,290.77,0.05,4.0,4.0,1.0
+H-Pee Laptop Lite,760.94,1.42,33.1,23.6,1.9
+Samsing Smartphone Ultra,1279.8,0.21,15.4,7.2,0.8
+H-Pee Laptop,1053.11,1.52,35.4,25.3,2.0
+Asos Headphones Max,312.24,0.29,19.3,17.4,7.7
