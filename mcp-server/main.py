@@ -116,4 +116,4 @@ def logistics_workflow() -> str:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="http", host="0.0.0.0", port=8080, stateless_http=True)
