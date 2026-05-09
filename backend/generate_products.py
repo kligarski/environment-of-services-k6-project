@@ -16,17 +16,17 @@ def generate_products_csv(filename="backend/products.csv"):
         "Dellta": (["Laptop", "Monitor", "Router"], 1.0),
     }
 
-    # Base characteristics: (base_price, weight_kg, dimensions_cm)
+    # Base characteristics: (base_price, weight_g, dimensions_cm)
     base_types = {
-        "Smartphone": (600.0, 0.2, (15.0, 7.0, 0.8)),
-        "Laptop": (1200.0, 1.5, (35.0, 25.0, 2.0)),
-        "Tablet": (400.0, 0.5, (25.0, 18.0, 0.7)),
-        "Monitor": (300.0, 5.0, (60.0, 40.0, 15.0)),
-        "Smartwatch": (250.0, 0.05, (4.0, 4.0, 1.0)),
-        "Headphones": (200.0, 0.3, (20.0, 18.0, 8.0)),
-        "Webcam": (100.0, 0.2, (10.0, 5.0, 5.0)),
-        "Router": (150.0, 0.8, (20.0, 20.0, 5.0)),
-        "Gaming-PC": (2000.0, 10.0, (50.0, 20.0, 45.0)),
+        "Smartphone": (600.0, 200.0, (15.0, 7.0, 0.8)),
+        "Laptop": (1200.0, 1500.0, (35.0, 25.0, 2.0)),
+        "Tablet": (400.0, 500.0, (25.0, 18.0, 0.7)),
+        "Monitor": (300.0, 5000.0, (60.0, 40.0, 15.0)),
+        "Smartwatch": (250.0, 50.0, (4.0, 4.0, 1.0)),
+        "Headphones": (200.0, 300.0, (20.0, 18.0, 8.0)),
+        "Webcam": (100.0, 200.0, (10.0, 5.0, 5.0)),
+        "Router": (150.0, 800.0, (20.0, 20.0, 5.0)),
+        "Gaming-PC": (2000.0, 10000.0, (50.0, 20.0, 45.0)),
     }
 
     suffix_multipliers = {
@@ -74,7 +74,7 @@ def generate_products_csv(filename="backend/products.csv"):
         {
             "name": "Vintage Mechanical Typewriter",
             "price": 450.0,
-            "weight": 5.2,
+            "weight": 5200.0,
             "dim_x": 40.0,
             "dim_y": 35.0,
             "dim_z": 15.0,
@@ -82,7 +82,7 @@ def generate_products_csv(filename="backend/products.csv"):
         {
             "name": "Quantum Computing Starter Kit",
             "price": 9999.99,
-            "weight": 25.0,
+            "weight": 25000.0,
             "dim_x": 100.0,
             "dim_y": 80.0,
             "dim_z": 60.0,
@@ -90,7 +90,7 @@ def generate_products_csv(filename="backend/products.csv"):
         {
             "name": "Golden Industrial Scissors",
             "price": 120.0,
-            "weight": 0.4,
+            "weight": 400.0,
             "dim_x": 25.0,
             "dim_y": 10.0,
             "dim_z": 1.5,
@@ -98,7 +98,7 @@ def generate_products_csv(filename="backend/products.csv"):
         {
             "name": "Cybernetic Eye Implant (Mock)",
             "price": 299.0,
-            "weight": 0.1,
+            "weight": 100.0,
             "dim_x": 3.0,
             "dim_y": 3.0,
             "dim_z": 2.5,

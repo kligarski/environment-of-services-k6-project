@@ -33,31 +33,33 @@ async def simulate_provider_delay(provider_name: str):
     await asyncio.sleep(delay)
 
 
-async def get_quote_for_provider(provider: str, weight: float, volume: float):
+async def get_quote_for_provider(provider: str, weight_g: float, volume: float):
     await simulate_provider_delay(provider)
 
-    # Provider-specific logic
+    # Provider-specific logic (converts weight to kg for pricing)
+    weight_kg = weight_g / 1000.0
+
     if provider == "OutPost":
         # OutPost has strict limits for package lockers
-        if weight > 25 or volume > 100000:  # Max 25kg or approx 100L
+        if weight_kg > 25 or volume > 100000:  # Max 25kg or approx 100L
             return None, "1 day"
-        return 15.0 + 1.0 * weight, "1 day"
+        return 15.0 + 1.0 * weight_kg, "1 day"
 
     elif provider == "LHD":
-        if weight > 300:
+        if weight_kg > 300:
             return None, "2-3 days"
-        return 20.0 + 2.0 * weight, "2-3 days"
+        return 20.0 + 2.0 * weight_kg, "2-3 days"
 
     elif provider == "SPU":
-        if weight > 20:
+        if weight_kg > 20:
             return None, "3-7 days"
-        return 10.0 + 0.5 * weight, "3-7 days"
+        return 10.0 + 0.5 * weight_kg, "3-7 days"
 
     elif provider == "PDP":
         # PDP handles the heaviest loads
-        if weight > 500:
+        if weight_kg > 500:
             return None, "1-2 days"
-        return 25.0 + 1.5 * weight, "1-2 days"
+        return 25.0 + 1.5 * weight_kg, "1-2 days"
 
     return None, "Unknown"
 
