@@ -129,13 +129,54 @@ The dashboards present key performance indicators such as request throughput, re
 ![High level architecture](docs/img/high-level-architecture.png)
 
 ## 5. Demo detailed architecture
-WIP
+The architecture is designed using a microservices approach and adapted for deployment in orchestrated (Kubernetes/Minikube) environments.
+
+*   **Backend Service (FastAPI):** A demo logistics system providing business logic for inventory and logistics management. It is intentionally designed with artificial delays and CPU loads to simulate real-world processing for performance testing.
+    *   `GET /products`: Provides product discovery with name filtering. Returns details like price, weight, and dimensions.
+    *   `POST /shipping/quote`: Calculates shipping estimates. It simulates concurrent interactions with four different shipping providers' APIs, each with randomized network-like latency.
+    *   `POST /packaging/optimize`: Implements a heuristic packaging algorithm. It calculates how to fit multiple items into standard box sizes and includes an artificial CPU-intensive load to simulate heavy computational tasks.
+    *   **Data Persistence:** Uses a local **SQLite** database for storing product information.
+*   **MCP Server (FastMCP):** Implements the Model Context Protocol and acts as a gateway for LLM Agents.
+    *   **Transport:** Uses **Streamable HTTP**, allowing for both standard request-response and SSE-based notifications/streaming.
+    *   **Tooling:** Exposes three main tools: `list_products`, `get_shipping_quote`, and `optimize_packaging`, which directly map to the backend's REST endpoints.
+
+<!-- TODO -->
+*work in progress*
 
 ## 6. Environment configuration description
-WIP
+The primary demonstration environment is built around Kubernetes to allow for load testing and production environment simulation. 
+
+Requirements for the local machine:
+* An operating system with containerization support (Linux, macOS, or Windows with WSL2).
+* Python 3.12+ environment (for running simple test scripts to verify the connection).
+* Docker.
+* Minikube and the `kubectl` tool configured to use the Minikube context.
+
+*(Note: While Kubernetes is the target environment, the repository also includes a Docker Compose configuration which can be optionally used for quick local development and debugging.)*
 
 ## 7. Installation method
-WIP
+The installation process involves starting the local Kubernetes cluster, building the necessary images inside it, and deploying the application containers.
+
+1. Start the Minikube cluster and deploy the components using the provided automation script:
+   ```bash
+   ./k8s/start_minikube.sh
+   ```
+   *This script will start Minikube, build Docker images locally in its registry, and then apply all manifests from the `k8s/` directory.*
+2. Kubernetes `ClusterIP` services are not directly accessible from the host. To access the MCP server, run port forwarding:
+   ```bash
+   kubectl port-forward service/mcp-service 8080:8080
+   ```
+3. To verify the installation, run the test script in a new terminal window:
+   ```bash
+   python mcp-server/test_mcp_connection_k8s_or_compose.py
+   ```
+
+**Optional: Lightweight Development Setup**
+For simple code development without spinning up Minikube, you can optionally use Docker Compose:
+```bash
+docker-compose up --build -d
+```
+The Backend will be available at `http://localhost:8000` and the MCP Server at `http://localhost:8080`.
 
 ## 8. Demo deployment steps:
 ### 8.1. Configuration set-up
