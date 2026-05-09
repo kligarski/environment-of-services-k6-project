@@ -3,7 +3,7 @@ import os
 
 from sqlalchemy import Column, Float, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Mapped, mapped_column, sessionmaker
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./logistics.db"
 
@@ -18,13 +18,13 @@ Base = declarative_base()
 class Product(Base):
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    price = Column(Float)
-    weight = Column(Float)  # in kg
-    dim_x = Column(Float)  # in cm
-    dim_y = Column(Float)  # in cm
-    dim_z = Column(Float)  # in cm
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, index=True)
+    price: Mapped[float] = mapped_column(Float)
+    weight: Mapped[float] = mapped_column(Float)  # in kg
+    dim_x: Mapped[float] = mapped_column(Float)  # in cm
+    dim_y: Mapped[float] = mapped_column(Float)  # in cm
+    dim_z: Mapped[float] = mapped_column(Float)  # in cm
 
 
 def init_db():
