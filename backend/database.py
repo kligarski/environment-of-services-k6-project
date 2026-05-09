@@ -1,7 +1,7 @@
 import csv
 import os
 
-from sqlalchemy import Column, Float, Integer, String, create_engine
+from sqlalchemy import Float, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Mapped, mapped_column, sessionmaker
 

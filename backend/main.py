@@ -42,7 +42,7 @@ async def get_quote_for_provider(provider: str, weight: float, volume: float):
         return 15.0 + 1.0 * weight, "1 day"
 
     elif provider == "LHD":
-        if weight > 31.5:
+        if weight > 300:
             return None, "2-3 days"
         return 20.0 + 2.0 * weight, "2-3 days"
 
@@ -53,7 +53,7 @@ async def get_quote_for_provider(provider: str, weight: float, volume: float):
 
     elif provider == "PDP":
         # PDP handles the heaviest loads
-        if weight > 50:
+        if weight > 500:
             return None, "1-2 days"
         return 25.0 + 1.5 * weight, "1-2 days"
 
