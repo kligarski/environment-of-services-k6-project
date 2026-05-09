@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 from main import mcp
 
@@ -10,7 +9,6 @@ async def test_tools():
     print(f"Result: {products}")
 
     print("\nTesting get_shipping_quote...")
-    # Using IDs that should exist (1 is usually first in seeded data)
     shipping = await mcp.call_tool(
         "get_shipping_quote", arguments={"items": [{"id": 1, "count": 1}]}
     )
