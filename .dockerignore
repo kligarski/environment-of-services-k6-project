@@ -1,8 +1,9 @@
-.DS_Store
 __pycache__/
 *.py[cod]
 *$py.class
-*.db
 .venv/
 venv/
-.python-version
+ENV/
+.env
+.sqlite
+*.db
