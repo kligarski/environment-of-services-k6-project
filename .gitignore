@@ -9,3 +9,7 @@ venv/
 .python-version
 .env
 /venv
+chainlit.md
+.chainlit/translations
+/.pytest_cache
+.files
