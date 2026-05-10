@@ -96,4 +96,4 @@ async def optimize_packaging(
     if not db_products:
         raise HTTPException(status_code=404, detail="No products found for given IDs")
 
-    return packaging_logic.optimize_packaging_logic(request.items, db_products)
+    return await packaging_logic.optimize_packaging_logic(request.items, db_products)

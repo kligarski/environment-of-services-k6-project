@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 from typing import Dict, List
 
@@ -31,11 +32,12 @@ def get_box_type(volume: float) -> str:
         return "Extra Large Box (D3)"
 
 
-def optimize_packaging_logic(items: List[schemas.ProductItem], db_products: Dict):
+async def optimize_packaging_logic(items: List[schemas.ProductItem], db_products: Dict):
     total_items_count = sum(p.count for p in items)
 
-    # 1. Simulate CPU load
-    simulate_cpu_load(total_items_count)
+    # 1. Simulate CPU load in a separate thread to avoid blocking the event loop
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, simulate_cpu_load, total_items_count)
 
     # 2. Heuristic packaging
     # We want to pack items into boxes with a realistic distribution
