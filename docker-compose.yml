@@ -7,6 +7,9 @@ services:
       - ./backend:/app/backend # Useful for development
     environment:
       - PYTHONUNBUFFERED=1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    depends_on:
+      - otel-collector
 
   mcp-server:
     build: ./mcp-server

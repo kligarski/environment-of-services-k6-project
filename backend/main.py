@@ -5,9 +5,12 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from . import packaging_logic, schemas, shipping_logic
-from .database import Product, SessionLocal, init_db, seed_data
+from .database import Product, SessionLocal, engine, init_db, seed_data
+from .telemetry import setup_telemetry
 
 app = FastAPI(title="Logistics Assistant Backend")
+
+setup_telemetry(app, engine)
 
 
 # Initialize database and seed data on startup
