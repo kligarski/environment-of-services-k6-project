@@ -4,6 +4,10 @@ from typing import List, Optional
 import httpx
 from fastmcp import FastMCP
 
+from telemetry import setup_telemetry
+
+setup_telemetry()
+
 # Configuration
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 

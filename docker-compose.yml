@@ -17,9 +17,11 @@ services:
       - "8080:8080"
     depends_on:
       - backend
+      - otel-collector
     environment:
       - BACKEND_URL=http://backend:8000
       - PYTHONUNBUFFERED=1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
