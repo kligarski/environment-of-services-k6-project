@@ -5,11 +5,16 @@ This directory contains Kubernetes manifests and scripts to run the logistics ba
 ## Architecture
 - **Backend**: 2 replicas, internal service on port 8000.
 - **MCP Server**: 2 replicas, internal service on port 8080.
+- **OTel Collector**: receives metrics via OTLP/gRPC (4317) and HTTP (4318), forwards to Prometheus via Remote Write.
+- **Prometheus**: remote-write receiver, no scrape targets.
+- **Grafana**: auto-provisioned dashboards (Services Overview, k6 Load Test), internal service on port 3000.
+- **k6 Operator**: installed via Helm, runs `TestRun` CRDs as Kubernetes Jobs using the custom k6+xk6-mcp image.
 
 ## Prerequisites
 - Minikube installed and configured.
 - Docker installed.
 - `kubectl` configured to use Minikube context.
+- Helm installed (for the k6 Operator).
 
 ## Quick Start
 
@@ -30,6 +35,20 @@ This directory contains Kubernetes manifests and scripts to run the logistics ba
    ```bash
    python mcp-server/test_mcp_connection_k8s_or_compose.py
    ```
+
+## Running a Load Test
+
+Apply the k6 TestRun manifest to trigger a load test:
+```bash
+kubectl apply -f k6/testrun.yaml
+```
+Watch progress with `kubectl get pods` — a Job pod will appear and run the test. Metrics will appear in Grafana under the **k6 Load Test** dashboard in real time.
+
+To access Grafana from your host:
+```bash
+kubectl port-forward service/grafana-service 3000:3000
+```
+Then open `http://localhost:3000` (default credentials: `admin` / `admin`).
 
 ## Useful Commands
 
