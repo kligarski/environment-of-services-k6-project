@@ -17,3 +17,43 @@ services:
     environment:
       - BACKEND_URL=http://backend:8000
       - PYTHONUNBUFFERED=1
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - type: bind
+        source: ./observability/otel-collector/config.yaml
+        target: /etc/otelcol-contrib/config.yaml
+        read_only: true
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - type: bind
+        source: ./observability/prometheus/prometheus.yaml
+        target: /etc/prometheus/prometheus.yaml
+        read_only: true
+    ports:
+      - "9090:9090"
+    command:
+      [
+        --web.enable-remote-write-receiver,
+        --config.file=/etc/prometheus/prometheus.yaml,
+      ]
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - type: bind
+        source: ./observability/grafana/provisioning
+        target: /etc/grafana/provisioning
+        read_only: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
