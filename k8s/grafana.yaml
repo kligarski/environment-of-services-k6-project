@@ -11,6 +11,130 @@ data:
         type: prometheus
         url: http://prometheus-service:9090
         isDefault: true
+        uid: prometheus
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provisioning
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: default
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /etc/grafana/provisioning/dashboards
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-files
+data:
+  overview.json: |
+    {
+      "title": "Services Overview",
+      "uid": "services-overview",
+      "schemaVersion": 38,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-15m", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Backend — Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } } },
+          "targets": [{ "expr": "rate(http_server_duration_milliseconds_count{job=\"backend\"}[1m])", "legendFormat": "{{http_route}}", "refId": "A" }]
+        },
+        {
+          "id": 2,
+          "title": "Backend — P95 Latency",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineWidth": 2 } } },
+          "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{job=\"backend\"}[1m])) by (le, http_route))", "legendFormat": "{{http_route}}", "refId": "A" }]
+        },
+        {
+          "id": 3,
+          "title": "MCP Server — Outbound Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } } },
+          "targets": [{ "expr": "rate(http_client_duration_milliseconds_count{job=\"mcp-server\"}[1m])", "legendFormat": "{{http_route}}", "refId": "A" }]
+        },
+        {
+          "id": 4,
+          "title": "MCP Server — Outbound P95 Latency",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineWidth": 2 } } },
+          "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(http_client_duration_milliseconds_bucket{job=\"mcp-server\"}[1m])) by (le, http_route))", "legendFormat": "{{http_route}}", "refId": "A" }]
+        }
+      ]
+    }
+  k6.json: |
+    {
+      "title": "k6 Load Test",
+      "uid": "k6-load-test",
+      "schemaVersion": 38,
+      "version": 1,
+      "refresh": "5s",
+      "time": { "from": "now-15m", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Virtual Users",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } },
+          "targets": [{ "expr": "vus{otel_scope_name=\"k6\"}", "legendFormat": "VUs", "refId": "A" }]
+        },
+        {
+          "id": 2,
+          "title": "MCP Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } } },
+          "targets": [{ "expr": "rate(mcp_request_count_total{otel_scope_name=\"k6\"}[1m])", "legendFormat": "requests/s", "refId": "A" }]
+        },
+        {
+          "id": 3,
+          "title": "MCP Request Duration",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineWidth": 2 } } },
+          "targets": [
+            { "expr": "histogram_quantile(0.95, sum(rate(mcp_request_duration_bucket{otel_scope_name=\"k6\"}[1m])) by (le))", "legendFormat": "p95", "refId": "A" },
+            { "expr": "histogram_quantile(0.50, sum(rate(mcp_request_duration_bucket{otel_scope_name=\"k6\"}[1m])) by (le))", "legendFormat": "p50", "refId": "B" }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Iteration Duration",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineWidth": 2 } } },
+          "targets": [
+            { "expr": "histogram_quantile(0.95, sum(rate(iteration_duration_milliseconds_bucket{otel_scope_name=\"k6\"}[1m])) by (le))", "legendFormat": "p95", "refId": "A" },
+            { "expr": "histogram_quantile(0.50, sum(rate(iteration_duration_milliseconds_bucket{otel_scope_name=\"k6\"}[1m])) by (le))", "legendFormat": "p50", "refId": "B" }
+          ]
+        }
+      ]
+    }
 
 ---
 apiVersion: apps/v1
@@ -38,10 +162,25 @@ spec:
             - name: datasources-volume
               mountPath: /etc/grafana/provisioning/datasources/prometheus.yaml
               subPath: prometheus.yaml
+            - name: dashboards-provisioning-volume
+              mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
+              subPath: dashboards.yaml
+            - name: dashboards-files-volume
+              mountPath: /etc/grafana/provisioning/dashboards/overview.json
+              subPath: overview.json
+            - name: dashboards-files-volume
+              mountPath: /etc/grafana/provisioning/dashboards/k6.json
+              subPath: k6.json
       volumes:
         - name: datasources-volume
           configMap:
             name: grafana-datasources
+        - name: dashboards-provisioning-volume
+          configMap:
+            name: grafana-dashboards-provisioning
+        - name: dashboards-files-volume
+          configMap:
+            name: grafana-dashboards-files
 
 ---
 apiVersion: v1
