@@ -4,7 +4,30 @@ metadata:
   name: k6-test-script
 data:
   test.js: |
-    # TODO: add k6 test script here
+    import mcp from 'k6/x/mcp';
+    import { sleep } from 'k6';
+
+    export const options = {
+      vus: 3,
+      duration: '30s',
+    };
+
+    export default function () {
+      const client = new mcp.StreamableHTTPClient({
+        base_url: 'http://mcp-service:8080/mcp',
+      });
+
+      client.ping();
+
+      client.callTool({ name: 'list_products', arguments: {} });
+
+      client.callTool({
+        name: 'get_shipping_quote',
+        arguments: { items: [{ id: 1, count: 2 }] },
+      });
+
+      sleep(1);
+    }
 
 ---
 apiVersion: k6.io/v1alpha1
@@ -25,4 +48,4 @@ spec:
         value: otel-collector-service:4317
       - name: K6_OTEL_GRPC_EXPORTER_INSECURE
         value: "true"
-  arguments: --out experimental-opentelemetry
+  arguments: --out opentelemetry
