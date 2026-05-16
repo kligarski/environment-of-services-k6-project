@@ -16,9 +16,15 @@ minikube image build -t mcp-server:latest "$PROJECT_ROOT/mcp-server"
 minikube image build -t k6-xk6-mcp:latest "$PROJECT_ROOT/k6"
 
 echo "Installing k6 Operator via Helm..."
-helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts --force-update
 helm repo update
 helm upgrade --install k6-operator grafana/k6-operator --wait
+
+echo "Creating Grafana dashboard ConfigMap from provisioning files..."
+kubectl create configmap grafana-dashboards-files \
+  --from-file=overview.json="$PROJECT_ROOT/observability/grafana/provisioning/dashboards/overview.json" \
+  --from-file=k6.json="$PROJECT_ROOT/observability/grafana/provisioning/dashboards/k6.json" \
+  --dry-run=client -o yaml | kubectl apply -f -
 
 echo "Applying Kubernetes manifests..."
 kubectl apply -f "$SCRIPT_DIR"

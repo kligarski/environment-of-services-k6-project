@@ -10,7 +10,10 @@ from opentelemetry.sdk.resources import Resource
 
 def setup_telemetry():
     endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
-    resource = Resource(attributes={"service.name": "mcp-server"})
+    resource = Resource(attributes={
+        "service.name": "mcp-server",
+        "service.instance.id": os.getenv("POD_NAME", "local"),
+    })
 
     meter_provider = MeterProvider(
         resource=resource,

@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 
 from opentelemetry import metrics
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
@@ -13,7 +12,10 @@ from opentelemetry.sdk.resources import Resource
 
 def setup_telemetry(app, engine):
     endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
-    resource = Resource(attributes={"service.name": "backend"})
+    resource = Resource(attributes={
+        "service.name": "backend",
+        "service.instance.id": os.getenv("POD_NAME", "local"),
+    })
 
     meter_provider = MeterProvider(
         resource=resource,

@@ -17,7 +17,7 @@
       },
       "targets": [
         {
-          "expr": "rate(http_server_duration_milliseconds_count{job=\"backend\"}[1m])",
+          "expr": "sum by (http_route) (rate(http_server_duration_milliseconds_count{job=\"backend\"}[1m]))",
           "legendFormat": "{{http_route}}",
           "refId": "A"
         }
@@ -51,8 +51,8 @@
       },
       "targets": [
         {
-          "expr": "rate(http_client_duration_milliseconds_count{job=\"mcp-server\"}[1m])",
-          "legendFormat": "{{http_route}}",
+          "expr": "sum by (http_method, http_status_code) (rate(http_client_duration_milliseconds_count{job=\"mcp-server\"}[1m]))",
+          "legendFormat": "{{http_method}} {{http_status_code}}",
           "refId": "A"
         }
       ]
@@ -68,8 +68,8 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_client_duration_milliseconds_bucket{job=\"mcp-server\"}[1m])) by (le, http_route))",
-          "legendFormat": "{{http_route}}",
+          "expr": "histogram_quantile(0.95, sum(rate(http_client_duration_milliseconds_bucket{job=\"mcp-server\"}[1m])) by (le, http_method))",
+          "legendFormat": "{{http_method}}",
           "refId": "A"
         }
       ]
