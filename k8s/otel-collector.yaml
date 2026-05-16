@@ -69,10 +69,12 @@ spec:
   selector:
     app: otel-collector
   ports:
-    - protocol: TCP
+    - name: grpc
+      protocol: TCP
       port: 4317
       targetPort: 4317
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 4318
       targetPort: 4318
   type: ClusterIP
