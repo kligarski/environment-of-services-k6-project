@@ -5,24 +5,22 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
+COPY frontend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire project
-COPY . .
+# Copy the frontend and agent code
+COPY frontend ./frontend
+COPY agent ./agent
 
 # Expose ports
-# 8000 - Chainlit frontend
+# 8081 - Chainlit frontend
 EXPOSE 8081
 
 # Set environment defaults (can be overridden via docker-compose)
-ENV LLM_BACKEND=gemini
-ENV MCP_SERVER_URL=http://mcp-server:8000/mcp
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app:$PYTHONPATH
 

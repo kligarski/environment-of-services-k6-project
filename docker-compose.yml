@@ -35,7 +35,7 @@ services:
       - LLM_BACKEND=${LLM_BACKEND:-gemini}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - MCP_SERVER_URL=${MCP_SERVER_URL:-http://mcp-server:8080/mcp}
-      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
       - PYTHONUNBUFFERED=1
     env_file:
       - .env

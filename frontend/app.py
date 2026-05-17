@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from agent.agent import build_agent
-from agent.mcp_client import discover_mcp_tools
+from agent.mcp_client import discover_mcp_tools, mcp_tools_session
 from agent.llm_config import get_llm
 
 load_dotenv()
@@ -55,16 +55,22 @@ async def start():
     try:
         mcp_server_url = os.getenv("MCP_SERVER_URL")
         tools = await discover_mcp_tools(mcp_server_url)
+        llm_backend = backend if backend != "auto" else os.getenv("LLM_BACKEND", "gemini")
+        llm = get_llm(llm_backend)
 
         cl.user_session.set("session_id", session_id)
         cl.user_session.set("backend", backend)
-        cl.user_session.set("tools", tools)
+        cl.user_session.set("llm_backend", llm_backend)
+        cl.user_session.set("llm", llm)
+        cl.user_session.set("mcp_server_url", mcp_server_url)
         cl.user_session.set("history", [])
 
         if tools:
             tools_info = f"{len(tools)} MCP tools available"
-        else:
+        elif not mcp_server_url:
             tools_info = "MCP not configured"
+        else:
+            tools_info = f"MCP unavailable ({mcp_server_url})"
 
         await cl.Message(
             content=f"**Backend:** `{profile}` | {tools_info}\n\n `/clear` to clear chat history."
@@ -84,14 +90,18 @@ async def handle_message(message: cl.Message):
             await cl.Message(content="Conversation history cleared.").send()
             return
 
-        tools = cl.user_session.get("tools") or []
+        mcp_server_url = cl.user_session.get("mcp_server_url") or os.getenv("MCP_SERVER_URL")
         backend = cl.user_session.get("backend") or "gemini"
         history = cl.user_session.get("history") or []
 
         history.append(HumanMessage(content=message.content))
 
-        llm = get_llm(backend if backend != "auto" else os.getenv("LLM_BACKEND", "gemini"))
-        agent = build_agent(llm, tools)
+        llm = cl.user_session.get("llm")
+        if llm is None:
+            llm_backend = backend if backend != "auto" else os.getenv("LLM_BACKEND", "gemini")
+            llm = get_llm(llm_backend)
+            cl.user_session.set("llm_backend", llm_backend)
+            cl.user_session.set("llm", llm)
 
         response_msg = cl.Message(content="")
         await response_msg.send()
@@ -99,25 +109,45 @@ async def handle_message(message: cl.Message):
         backend_used = backend
         full_response = None
 
-        async for event in agent.astream_events(
-            {"messages": history},
-            version="v2",
-        ):
-            kind = event["event"]
+        try:
+            async with mcp_tools_session(mcp_server_url) as tools:
+                agent = build_agent(llm, tools)
 
-            if kind == "on_tool_start":
-                tool_name = event.get("name", "unknown tool")
-                async with cl.Step(name=f"{tool_name}", type="tool") as step:
-                    step.input = str(event.get("data", {}).get("input", ""))
+                async for event in agent.astream_events(
+                    {"messages": history},
+                    version="v2",
+                ):
+                    kind = event["event"]
 
-            elif kind == "on_chat_model_stream":
-                chunk = event["data"]["chunk"]
-                token = stringify_message_content(chunk.content)
-                if token:
-                    await response_msg.stream_token(token)
+                    if kind == "on_tool_start":
+                        tool_name = event.get("name", "unknown tool")
+                        async with cl.Step(name=f"{tool_name}", type="tool") as step:
+                            step.input = str(event.get("data", {}).get("input", ""))
 
-            elif kind == "on_chain_end" and event.get("name") == "LangGraph":
-                full_response = event["data"].get("output")
+                    elif kind == "on_chat_model_stream":
+                        chunk = event["data"]["chunk"]
+                        token = stringify_message_content(chunk.content)
+                        if token:
+                            await response_msg.stream_token(token)
+
+                    elif kind == "on_chain_end" and event.get("name") == "LangGraph":
+                        full_response = event["data"].get("output")
+        except Exception as mcp_error:
+            # Fallback to plain LLM response if MCP session/tool loading fails.
+            print(f"MCP session failed during message handling: {mcp_error}")
+            agent = build_agent(llm, [])
+            async for event in agent.astream_events(
+                {"messages": history},
+                version="v2",
+            ):
+                kind = event["event"]
+                if kind == "on_chat_model_stream":
+                    chunk = event["data"]["chunk"]
+                    token = stringify_message_content(chunk.content)
+                    if token:
+                        await response_msg.stream_token(token)
+                elif kind == "on_chain_end" and event.get("name") == "LangGraph":
+                    full_response = event["data"].get("output")
 
         await response_msg.update()
 
