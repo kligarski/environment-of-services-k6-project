@@ -25,6 +25,12 @@ spec:
           value: "http://backend-service:8000"
         - name: PYTHONUNBUFFERED
           value: "1"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector-service:4317"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
 ---
 apiVersion: v1
 kind: Service

@@ -5,6 +5,10 @@ import httpx
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field
 
+from telemetry import setup_telemetry
+
+setup_telemetry()
+
 # Configuration
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
