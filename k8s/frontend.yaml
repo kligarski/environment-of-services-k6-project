@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: frontend:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8081
+        env:
+        - name: LLM_BACKEND
+          value: "gemini"
+        - name: MCP_SERVER_URL
+          value: "http://mcp-service:8080/mcp"
+        - name: OLLAMA_BASE_URL
+          value: "http://ollama-service:11434"
+        - name: OLLAMA_MODEL
+          value: "llama3.2:1b"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+                - name: PYTHONPATH
+                  value: "/app:/app/agent"
+        - name: GOOGLE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llm-secrets
+              key: google_api_key
+              optional: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP

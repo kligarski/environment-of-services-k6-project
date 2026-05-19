@@ -1,15 +1,19 @@
+version: "3.9"
+
 services:
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app/backend # Useful for development
+      - ./backend:/app/backend
     environment:
       - PYTHONUNBUFFERED=1
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
     depends_on:
       - otel-collector
+    networks:
+      - ai-network
 
   mcp-server:
     build: ./mcp-server
@@ -22,6 +26,8 @@ services:
       - BACKEND_URL=http://backend:8000
       - PYTHONUNBUFFERED=1
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    networks:
+      - ai-network
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -35,6 +41,8 @@ services:
       - "4318:4318"
     depends_on:
       - prometheus
+    networks:
+      - ai-network
 
   prometheus:
     image: prom/prometheus:latest
@@ -50,6 +58,8 @@ services:
         --web.enable-remote-write-receiver,
         --config.file=/etc/prometheus/prometheus.yaml,
       ]
+    networks:
+      - ai-network
 
   grafana:
     image: grafana/grafana:latest
@@ -62,3 +72,56 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+    networks:
+      - ai-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: ai-agent-frontend
+    ports:
+      - "8081:8081"
+    environment:
+      - LLM_BACKEND=${LLM_BACKEND:-gemini}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - MCP_SERVER_URL=${MCP_SERVER_URL:-http://mcp-server:8080/mcp}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      - mcp-server
+      - ollama
+    networks:
+      - ai-network
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    networks:
+      - ai-network
+    restart: unless-stopped
+
+networks:
+  ai-network:
+    driver: bridge
+
+volumes:
+  ollama-data:
+    driver: local

@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import httpx
 from fastmcp import FastMCP
+from pydantic import BaseModel, Field
 
 from telemetry import setup_telemetry
 
@@ -15,6 +16,11 @@ mcp = FastMCP(
     "Logistics Assistant",
     instructions="A specialized assistant for managing product catalogs, calculating shipping costs, and optimizing warehouse packaging.",
 )
+
+
+class ShipmentItem(BaseModel):
+    id: int = Field(..., description="Product ID from catalog")
+    count: int = Field(..., ge=1, description="Quantity of products")
 
 
 @mcp.tool()
@@ -43,7 +49,7 @@ async def list_products(query: Optional[str] = None) -> str:
 
 
 @mcp.tool()
-async def get_shipping_quote(items: List[dict]) -> str:
+async def get_shipping_quote(items: List[ShipmentItem]) -> str:
     """
     Request shipping price estimates and delivery times from multiple providers.
 
@@ -54,7 +60,7 @@ async def get_shipping_quote(items: List[dict]) -> str:
                Example: [{"id": 1, "count": 2}, {"id": 10, "count": 1}]
     """
     async with httpx.AsyncClient() as client:
-        payload = {"products": items}
+        payload = {"products": [item.model_dump() for item in items]}
         response = await client.post(f"{BACKEND_URL}/shipping/quote", json=payload)
 
         if response.status_code == 404:
@@ -76,7 +82,7 @@ async def get_shipping_quote(items: List[dict]) -> str:
 
 
 @mcp.tool()
-async def optimize_packaging(items: List[dict]) -> str:
+async def optimize_packaging(items: List[ShipmentItem]) -> str:
     """
     Calculate the most efficient way to pack multiple items into shipping boxes.
 
@@ -89,7 +95,7 @@ async def optimize_packaging(items: List[dict]) -> str:
                Example: [{"id": 5, "count": 10}]
     """
     async with httpx.AsyncClient() as client:
-        payload = {"items": items}
+        payload = {"items": [item.model_dump() for item in items]}
         response = await client.post(f"{BACKEND_URL}/packaging/optimize", json=payload)
 
         if response.status_code == 404:
