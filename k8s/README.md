@@ -61,33 +61,9 @@ kubectl apply -f k8s/mcp-server.yaml
    - `mcp-server` built from mcp-server/ directory  
    - `frontend` built from project root (includes agent/ module)
 
-## Running a Load Test
+## Running a Load Tests
 
-Apply the k6 TestRun manifest to trigger a load test:
-```bash
-kubectl apply -f k6/testrun.yaml
-```
-Watch progress with `kubectl get pods` — a Job pod will appear and run the test. Metrics will appear in Grafana under the **k6 Load Test** dashboard in real time.
-
-To access Grafana from your host:
-```bash
-kubectl port-forward service/grafana-service 3000:3000
-```
-Then open `http://localhost:3000` (default credentials: `admin` / `admin`).
-
-## Running a Load Test
-
-Apply the k6 TestRun manifest to trigger a load test:
-```bash
-kubectl apply -f k6/testrun.yaml
-```
-Watch progress with `kubectl get pods` — a Job pod will appear and run the test. Metrics will appear in Grafana under the **k6 Load Test** dashboard in real time.
-
-To access Grafana from your host:
-```bash
-kubectl port-forward service/grafana-service 3000:3000
-```
-Then open `http://localhost:3000` (default credentials: `admin` / `admin`).
+Running tests is described in the [k6 README](../k6/README.md).
 
 ## Useful Commands
 
