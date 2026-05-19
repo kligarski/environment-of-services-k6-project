@@ -9,6 +9,9 @@ services:
       - ./backend:/app/backend
     environment:
       - PYTHONUNBUFFERED=1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    depends_on:
+      - otel-collector
     networks:
       - ai-network
 
@@ -18,9 +21,57 @@ services:
       - "8080:8080"
     depends_on:
       - backend
+      - otel-collector
     environment:
       - BACKEND_URL=http://backend:8000
       - PYTHONUNBUFFERED=1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    networks:
+      - ai-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - type: bind
+        source: ./observability/otel-collector/config.yaml
+        target: /etc/otelcol-contrib/config.yaml
+        read_only: true
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - prometheus
+    networks:
+      - ai-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - type: bind
+        source: ./observability/prometheus/prometheus.yaml
+        target: /etc/prometheus/prometheus.yaml
+        read_only: true
+    ports:
+      - "9090:9090"
+    command:
+      [
+        --web.enable-remote-write-receiver,
+        --config.file=/etc/prometheus/prometheus.yaml,
+      ]
+    networks:
+      - ai-network
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - type: bind
+        source: ./observability/grafana/provisioning
+        target: /etc/grafana/provisioning
+        read_only: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
     networks:
       - ai-network
 

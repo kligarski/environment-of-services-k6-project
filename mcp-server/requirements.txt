@@ -1,3 +1,6 @@
 fastmcp
 httpx
 pydantic
+opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-instrumentation-httpx
