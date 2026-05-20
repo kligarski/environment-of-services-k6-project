@@ -8,10 +8,10 @@ from . import schemas
 def simulate_cpu_load(item_count: int):
     """
     Simulates a CPU-bound task by performing redundant calculations.
-    Growth is exponential: complexity ~ O(1.5^n) to simulate heavy algorithms.
+    Growth is exponential: complexity ~ O(1.25^n) to simulate heavy algorithms.
     """
-    base_iterations = 50_000
-    iterations = int(base_iterations * (1.5 ** min(item_count, 25)))
+    base_iterations = 200_000
+    iterations = int(base_iterations * (1.25 ** min(item_count, 30)))
 
     result = 0
     for i in range(iterations):
