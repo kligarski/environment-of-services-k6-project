@@ -17,3 +17,4 @@ export function responseText(response) {
 
   return JSON.stringify(response);
 }
+

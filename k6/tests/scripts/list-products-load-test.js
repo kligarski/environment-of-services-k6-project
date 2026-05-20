@@ -8,20 +8,15 @@ function randomQuery() {
     return queries[Math.floor(Math.random() * queries.length)];
 }
 
-
 export const options = {
-    stages: [
-        { duration: '30s', target: 5 },
-        { duration: '1m', target: 10 },
-        { duration: '1m', target: 20 },
-        { duration: '30s', target: 0 },
-    ],
+    vus: 10,
+    duration: '1m',
     tags: {
-        test_name: 'packaging-load-test',
+        test_name: 'list-products-load-test',
     },
     thresholds: {
-        checks: ['rate>0.90'],
-        iteration_duration: ['p(95)<20000'],
+        checks: ['rate>0.95'],
+        iteration_duration: ['p(95)<3000'],
     },
 };
 

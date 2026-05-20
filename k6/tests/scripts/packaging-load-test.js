@@ -11,9 +11,6 @@ function randomItem() {
     };
 }
 
-//Same options as packaging-load-test and list-products-load-test, both achieved
-//100% success rate, this test got only 1.76% and 1.06% success rate
-
 export const options = {
     stages: [
         { duration: '30s', target: 5 },
