@@ -18,10 +18,13 @@ The tests simulate AI agents calling tools exposed by the MCP server and export 
 4. **shipping-quote-load-test**  
    Tests the `get_shipping_quote` tool under load.
 
-5. **packaging-stress-test**  
-   Stress-tests the `optimize_packaging` tool.
+5. **packaging-load-test**  
+   Tests the `optimize_packaging` tool under load.
 
-6. **mixed-load-test**  
+6. **packaging-standard-load-test**  
+   Tests the `optimize_packaging` tool under ligther traffic.
+
+7. **mixed-load-test**  
    Tests all MCP server tools together under load.
 
 ## Running Tests

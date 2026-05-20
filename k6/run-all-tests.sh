@@ -83,10 +83,15 @@ run_test "mcp-shipping-quote-load-test" "k6-shipping-quote-load-test-script" \
   "k6/tests/manifests/shipping-quote-load-test.yaml" \
   300
 
-run_test "mcp-packaging-stress-test" "k6-packaging-stress-test-script" \
-  "k6/tests/scripts/packaging-stress-test.js" \
-  "k6/tests/manifests/packaging-stress-test.yaml" \
+run_test "mcp-packaging-load-test" "k6-packaging-load-test-script" \
+  "k6/tests/scripts/packaging-load-test.js" \
+  "k6/tests/manifests/packaging-load-test.yaml" \
   420
+
+run_test "mcp-packaging-standard-load-test" "k6-packaging-standard-load-test-script" \
+"k6/tests/scripts/packaging-standard-load-test.js" \
+"k6/tests/manifests/packaging-standard-load-test.yaml" \
+420
 
 run_test "mcp-mixed-load-test" "k6-mixed-load-test-script" \
   "k6/tests/scripts/mixed-load-test.js" \

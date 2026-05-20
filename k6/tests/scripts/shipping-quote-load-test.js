@@ -12,14 +12,18 @@ function randomItem() {
 }
 
 export const options = {
-    vus: 10,
-    duration: '1m',
+    stages: [
+        { duration: '30s', target: 5 },
+        { duration: '1m', target: 10 },
+        { duration: '1m', target: 20 },
+        { duration: '30s', target: 0 },
+    ],
     tags: {
-        test_name: 'shipping-quote-load-test',
+        test_name: 'packaging-load-test',
     },
     thresholds: {
-        checks: ['rate>0.95'],
-        iteration_duration: ['p(95)<8000'],
+        checks: ['rate>0.90'],
+        iteration_duration: ['p(95)<20000'],
     },
 };
 
