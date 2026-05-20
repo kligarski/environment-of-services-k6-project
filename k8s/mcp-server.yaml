@@ -30,6 +30,9 @@ spec:
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
+          envFrom:
+            - secretRef:
+                name: app-secrets
           env:
             - name: BACKEND_URL
               value: "http://backend-service:8000"

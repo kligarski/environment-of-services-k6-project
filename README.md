@@ -175,13 +175,6 @@ The installation process involves starting the local Kubernetes cluster, buildin
    python mcp-server/test_mcp_connection_k8s_or_compose.py
    ```
 
-**Optional: Lightweight Development Setup**
-For simple code development without spinning up Minikube, you can optionally use Docker Compose:
-```bash
-docker-compose up --build -d
-```
-The Backend will be available at `http://localhost:8000` and the MCP Server at `http://localhost:8080`.
-
 ## 8. Demo deployment steps:
 ### 8.1. Configuration set-up
 WIP

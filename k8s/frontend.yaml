@@ -30,25 +30,18 @@ spec:
               port: 8081
             initialDelaySeconds: 10
             periodSeconds: 10
+          envFrom:
+            - secretRef:
+                name: app-secrets
           env:
-            - name: LLM_BACKEND
-              value: "gemini"
             - name: MCP_SERVER_URL
               value: "http://mcp-service:8080/mcp"
             - name: OLLAMA_BASE_URL
               value: "http://ollama-service:11434"
-            - name: OLLAMA_MODEL
-              value: "llama3.2:1b"
             - name: PYTHONUNBUFFERED
               value: "1"
             - name: PYTHONPATH
               value: "/app:/app/agent"
-            - name: GOOGLE_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: llm-secrets
-                  key: google_api_key
-                  optional: true
 
 ---
 apiVersion: v1

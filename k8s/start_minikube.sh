@@ -9,6 +9,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 echo "Starting Minikube..."
 minikube start
+# minikube start --memory 8192 --cpus 4
 
 echo "Building Docker images inside Minikube..."
 minikube image build -t backend:latest "$PROJECT_ROOT/backend"
@@ -27,6 +28,14 @@ kubectl create configmap grafana-dashboards-files \
   --from-file=k6.json="$PROJECT_ROOT/observability/grafana/provisioning/dashboards/k6.json" \
   --dry-run=client -o yaml | kubectl apply -f -
 
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    echo "Creating app-secrets from .env file..."
+    kubectl create secret generic app-secrets --from-env-file="$PROJECT_ROOT/.env" --dry-run=client -o yaml | kubectl apply -f -
+else
+    echo "Warning: .env file not found. Creating empty app-secrets..."
+    kubectl create secret generic app-secrets --dry-run=client -o yaml | kubectl apply -f -
+fi
+
 echo "Applying Kubernetes manifests..."
 kubectl apply -f "$SCRIPT_DIR"
 
@@ -38,6 +47,22 @@ kubectl rollout status deployment/prometheus
 kubectl rollout status deployment/grafana
 kubectl rollout status deployment/frontend
 kubectl rollout status deployment/ollama
+
+# Get model name from .env or default to llama3.2:1b
+MODEL_NAME="llama3.2:1b"
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    ENV_MODEL=$(grep "^OLLAMA_MODEL=" "$PROJECT_ROOT/.env" | cut -d'=' -f2)
+    if [ ! -z "$ENV_MODEL" ]; then
+        MODEL_NAME=$ENV_MODEL
+    fi
+fi
+
+echo "Waiting for Ollama to download the model '$MODEL_NAME' (this may take a few minutes)..."
+until kubectl exec deployment/ollama -- ollama list | grep -q "$MODEL_NAME"; do
+    echo -n "."
+    sleep 5
+done
+echo " Ollama model '$MODEL_NAME' ready!"
 
 echo "Deployment complete."
 echo "To access the MCP server, run:"

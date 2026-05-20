@@ -32,6 +32,9 @@ spec:
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 10
+          envFrom:
+            - secretRef:
+                name: app-secrets
           env:
             - name: PYTHONUNBUFFERED
               value: "1"
