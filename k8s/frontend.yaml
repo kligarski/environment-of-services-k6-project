@@ -20,6 +20,16 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8081
+          livenessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 10
           env:
             - name: LLM_BACKEND
               value: "gemini"
