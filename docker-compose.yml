@@ -41,6 +41,8 @@ services:
       - "4318:4318"
     depends_on:
       - prometheus
+    networks:
+      - ai-network
 
   prometheus:
     image: prom/prometheus:latest
@@ -56,6 +58,8 @@ services:
         --web.enable-remote-write-receiver,
         --config.file=/etc/prometheus/prometheus.yaml,
       ]
+    networks:
+      - ai-network
 
   grafana:
     image: grafana/grafana:latest
