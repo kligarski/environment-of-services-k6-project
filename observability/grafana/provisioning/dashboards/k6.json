@@ -2,9 +2,25 @@
   "title": "k6 Load Test",
   "uid": "k6-load-test",
   "schemaVersion": 38,
-  "version": 1,
+  "version": 4,
   "refresh": "5s",
   "time": { "from": "now-15m", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "testrun_name",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "definition": "label_values(testrun_name)",
+        "query": "label_values(testrun_name)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "sort": 1
+      }
+    ]
+  },
   "panels": [
     {
       "id": 1,
@@ -17,15 +33,15 @@
       },
       "targets": [
         {
-          "expr": "vus{otel_scope_name=\"k6\"}",
-          "legendFormat": "VUs",
+          "expr": "max(vus{testrun_name=~\"$testrun_name\"})",
+          "legendFormat": "Total VUs",
           "refId": "A"
         }
       ]
     },
     {
       "id": 2,
-      "title": "MCP Request Rate",
+      "title": "Throughput by Tool",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -34,15 +50,15 @@
       },
       "targets": [
         {
-          "expr": "rate(mcp_request_count_total{otel_scope_name=\"k6\"}[1m])",
-          "legendFormat": "requests/s",
+          "expr": "sum(rate(mcp_request_count_total{testrun_name=~\"$testrun_name\"}[1m])) by (group)",
+          "legendFormat": "{{group}}",
           "refId": "A"
         }
       ]
     },
     {
       "id": 3,
-      "title": "MCP Request Duration",
+      "title": "Latency by Tool (P95)",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -51,14 +67,9 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(mcp_request_duration_bucket{otel_scope_name=\"k6\"}[1m])) by (le))",
-          "legendFormat": "p95",
+          "expr": "histogram_quantile(0.95, sum(rate(mcp_request_duration_bucket{testrun_name=~\"$testrun_name\"}[1m])) by (le, group))",
+          "legendFormat": "{{group}} p95",
           "refId": "A"
-        },
-        {
-          "expr": "histogram_quantile(0.50, sum(rate(mcp_request_duration_bucket{otel_scope_name=\"k6\"}[1m])) by (le))",
-          "legendFormat": "p50",
-          "refId": "B"
         }
       ]
     },
@@ -73,12 +84,12 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(iteration_duration_milliseconds_bucket{otel_scope_name=\"k6\"}[1m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(iteration_duration_milliseconds_bucket{testrun_name=~\"$testrun_name\"}[1m])) by (le))",
           "legendFormat": "p95",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.50, sum(rate(iteration_duration_milliseconds_bucket{otel_scope_name=\"k6\"}[1m])) by (le))",
+          "expr": "histogram_quantile(0.50, sum(rate(iteration_duration_milliseconds_bucket{testrun_name=~\"$testrun_name\"}[1m])) by (le))",
           "legendFormat": "p50",
           "refId": "B"
         }

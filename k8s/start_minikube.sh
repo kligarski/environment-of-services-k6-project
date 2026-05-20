@@ -8,8 +8,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 echo "Starting Minikube..."
-minikube start
-# minikube start --memory 8192 --cpus 4
+# minikube start
+minikube start --memory 8192 --cpus 4
 
 echo "Building Docker images inside Minikube..."
 minikube image build -t backend:latest "$PROJECT_ROOT/backend"
