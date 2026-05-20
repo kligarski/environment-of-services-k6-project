@@ -13,7 +13,7 @@ minikube start
 echo "Building Docker images inside Minikube..."
 minikube image build -t backend:latest "$PROJECT_ROOT/backend"
 minikube image build -t mcp-server:latest "$PROJECT_ROOT/mcp-server"
-minikube image build -t frontend:latest -f "$PROJECT_ROOT/frontend/Dockerfile" "$PROJECT_ROOT"
+(cd "$PROJECT_ROOT" && minikube image build -t frontend:latest -f frontend/Dockerfile .)
 minikube image build -t k6-xk6-mcp:latest "$PROJECT_ROOT/k6"
 
 echo "Installing k6 Operator via Helm..."
