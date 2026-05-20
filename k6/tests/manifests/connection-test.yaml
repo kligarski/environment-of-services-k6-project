@@ -1,0 +1,19 @@
+apiVersion: k6.io/v1alpha1
+kind: TestRun
+metadata:
+  name: mcp-connection-test
+spec:
+  parallelism: 1
+  script:
+    configMap:
+      name: k6-connection-test-script
+      file: connection-test.js
+  runner:
+    image: k6-xk6-mcp:latest
+    imagePullPolicy: Never
+    env:
+      - name: K6_OTEL_GRPC_EXPORTER_ENDPOINT
+        value: otel-collector-service:4317
+      - name: K6_OTEL_GRPC_EXPORTER_INSECURE
+        value: "true"
+  arguments: --out opentelemetry

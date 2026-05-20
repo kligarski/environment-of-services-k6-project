@@ -1,5 +1,5 @@
 {
-  "title": "k6 Tests",
+  "title": "k6 Load Test",
   "uid": "k6-load-test",
   "schemaVersion": 38,
   "version": 1,

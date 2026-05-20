@@ -3,38 +3,69 @@ This directory contains k6 load tests for the MCP server. Tests are executed in 
 
 The tests simulate AI agents calling tools exposed by the MCP server and export metrics through OpenTelemetry to Prometheus and Grafana.
 
+
 ## Currently available tests
 
-1. **connection-test**: Tests connection to all tools of mcp server
-2. **validation-test**: Tests validation of all tools of mcp server
-3. **stress-test-normal**: Tests all tools of mcp server under normal level of stress
-4. **stress-test-packaging**: Tests `optimize-packaging` tool under stress
-5. **stress-test-all**: Tests all tools of mcp server under stress
+1. **connection-test**  
+   Tests connection to all tools of the MCP server.
+
+2. **validation-test**  
+   Tests validation and error handling of the MCP server tools.
+
+3. **list-products-load-test**  
+   Tests the `list_products` tool under load.
+
+4. **shipping-quote-load-test**  
+   Tests the `get_shipping_quote` tool under load.
+
+5. **packaging-stress-test**  
+   Stress-tests the `optimize_packaging` tool.
+
+6. **mixed-load-test**  
+   Tests all MCP server tools together under load.
 
 ## Running Tests
+
+Each test consists of:
+
+- a JavaScript test script in k6/tests/scripts/
+- a Kubernetes TestRun manifest in k6/tests/manifests/
+- a ConfigMap created from the JavaScript script before running the test
+
 
 **Make sure Kubernetes stack is running, if not execute**:
 ```bash
 ./k8s/start_minikube.sh
 ```
 
-### Running Single Test
+### Running Single Test for test <test_name>:
 
-**If a test with the <test_name> already exists, delete the previous TestRun and ConfigMap first:**
+#### Step 1: Clean up previous runs
+If a test with the <test_name> already exists, delete the previous TestRun and ConfigMap first:
 
 ```bash
-kubectl delete testrun mcp-<test_name>--ignore-not-found=true
+kubectl delete testrun mcp-<test_name> --ignore-not-found=true
 kubectl delete configmap k6-<test_name>-script --ignore-not-found=true
 ```
 
-**Running test for test <test_name>**:
+#### Step 2: Create the ConfigMap
+
+Create a ConfigMap for the test script and helper file (note: helper is not needed for connection-test):
 
 ```bash
-kubectl apply -f k6/tests/<test_name>.yaml
+kubectl create configmap k6-<test_name>-script \
+  --from-file=<test_name>.js=k6/tests/scripts/<test_name>.js \
+  --from-file=helpers.js=k6/tests/scripts/helpers.js
+```
+
+#### Step 3: Apply manifest and verify
+
+```bash
+kubectl apply -f k6/tests/manifests/<test_name>.yaml
 
 kubectl get pods
 
-kubectl logs -l k6_cr=<test_name>-test
+kubectl logs -l k6_cr=<test_name>
 ```
 
 ### Running All Tests
