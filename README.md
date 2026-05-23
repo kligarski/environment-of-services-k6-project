@@ -132,25 +132,27 @@ The dashboards present key performance indicators such as request throughput, re
 The architecture is designed using a microservices approach and adapted for deployment in orchestrated (Kubernetes/Minikube) environments.
 
 *   **Backend Service (FastAPI):** A demo logistics system providing business logic for inventory and logistics management. It is intentionally designed with artificial delays and CPU loads to simulate real-world processing for performance testing.
+    *   **Orchestration:** Deployed with **2 replicas** for high availability and load distribution. Includes **Liveness and Readiness probes** pointing to `/health`.
     *   `GET /products`: Provides product discovery with name filtering. Returns details like price, weight, and dimensions.
     *   `POST /shipping/quote`: Calculates shipping estimates. It simulates concurrent interactions with four different shipping providers' APIs, each with randomized network-like latency.
     *   `POST /packaging/optimize`: Implements a heuristic packaging algorithm. It calculates how to fit multiple items into standard box sizes and includes an artificial CPU-intensive load to simulate heavy computational tasks.
     *   **Data Persistence:** Uses a local **SQLite** database for storing product information.
 *   **MCP Server (FastMCP):** Implements the Model Context Protocol and acts as a gateway for LLM Agents.
+    *   **Orchestration:** Deployed with **2 replicas** to handle concurrent agent requests. Monitored via **TCP health checks** on port 8080.
     *   **Transport:** Uses **Streamable HTTP**, allowing for both standard request-response and SSE-based notifications/streaming.
     *   **Tooling:** Exposes three main tools: `list_products`, `get_shipping_quote`, and `optimize_packaging`, which directly map to the backend's REST endpoints.
 
-*   **OTel Collector:** Receives metrics from all components via OTLP/gRPC (port 4317) and forwards them to Prometheus using Remote Write.
+*   **OTel Collector:** Receives metrics from all components via OTLP/gRPC (port 4317) and forwards them to Prometheus using Remote Write. Deployed as a single instance.
 *   **Prometheus:** Configured with `--web.enable-remote-write-receiver` to accept pushed metrics. No scrape targets — all data comes from the OTel Collector.
 *   **Grafana:** Dashboards are auto-provisioned at startup via ConfigMaps. Two dashboards are available:
     *   **Services Overview** — backend and MCP server HTTP metrics (request rate, P95 latency).
     *   **k6 Load Test** — k6 test metrics (virtual users, MCP request rate and duration, iteration duration).
 
-*   **Frontend (Chainlit):** A web-based chatbot interface that provides a user-friendly way to interact with the AI Agent. Deployed as a single replica.
+*   **Frontend (Chainlit):** A web-based chatbot interface that provides a user-friendly way to interact with the AI Agent. Deployed as a single replica with **TCP health checks**.
 *   **Agent (LangChain):** The orchestrator component (integrated with the Frontend) that uses the ReAct pattern to interpret user queries, select appropriate tools from the MCP server, and generate responses.
 *   **Ollama / Gemini:** The environment supports switching between local and cloud-based LLM execution to demonstrate flexibility and performance trade-offs:
     *   **Gemini:** A cloud-based LLM (via API) providing high reasoning performance and native tool calling. It is generally faster for complex tasks but requires external connectivity.
-    *   **Ollama:** A local LLM provider deployed within the cluster. While it allows for completely offline and private interactions, local execution is typically slower than cloud APIs, and lighter models (like Llama 3.2 1B/3B) may exhibit lower "intelligence" or accuracy in complex tool selection compared to larger cloud models.
+    *   **Ollama:** A local LLM provider deployed within the cluster as a **single replica** with persistent storage for models. While it allows for completely offline and private interactions, local execution is typically slower than cloud APIs, and lighter models (like Llama 3.2 1B/3B) may exhibit lower "intelligence" or accuracy in complex tool selection compared to larger cloud models.
 
 ## 6. Environment configuration description
 The primary demonstration environment is built around Kubernetes to allow for load testing and production environment simulation. 
