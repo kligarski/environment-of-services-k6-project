@@ -207,11 +207,84 @@ Manual data preparation is not required. The Backend Service automatically seeds
 
 ## 9. Demo description
 ### 9.1. Execution procedure
-WIP
+
+#### I. Functional Testing (Frontend)
+1. Access the Chat UI at `http://localhost:8081`.
+2. **Phase A: Cloud LLM (Gemini):**
+   - Ensure the Gemini profile is selected.
+   - **Prompt 1 (Product Discovery):** *"Show me available laptops"*
+     - *Expected result:* The agent should quickly use the `list_products` tool and show various laptops including e.g. "Dellta Laptop Pro" and "Macrosoft Laptop Lite".
+   - **Prompt 2 (Shipping):** *"How much would it cost to ship 2 Dellta Laptop Pro and 5 Macrosoft Laptop Lite?"*
+     - *Expected result:* The agent should call `get_shipping_quote` and provide a cost estimate.
+   - **Prompt 3 (Packaging):** *"How should I pack these products?"*
+     - *Expected result:* The agent should call `optimize_packaging` and provide a box distribution strategy.
+3. **Phase B: Local LLM (Ollama):**
+   - Switch the profile to **Ollama** in the UI.
+   - Run the same prompts as above.
+   - **Important Note:** Local execution via Ollama might take significantly longer. Additionally, lighter models are generally "less intelligent" and may struggle with complex tool selection compared to Gemini.
+
+#### II. Observability Baseline
+1. Open Grafana at `http://localhost:3000`.
+2. Navigate to the **Services Overview** dashboard.
+3. Observe the baseline (idle) metrics for the Backend and MCP server.
+
+#### III. Load Testing (k6)
+Run the load tests using the provided script or individually via `kubectl`.
+
+**To run all tests sequentially:**
+```bash
+./k6/run-all-tests.sh
+```
+
+**Individual tests (available in `k6/tests/scripts/`):**
+- `connection-test.js`: Verifies the k6 client can establish a handshake with the MCP server.
+- `validation-test.js`: Validates that the MCP server correctly handles tool discovery and JSON-RPC responses.
+- `list-products-load-test.js`: High-frequency product searching.
+- `shipping-quote-load-test.js`: Simulates external shipping provider API latency.
+- `packaging-load-test.js`: Tests CPU-intensive optimization logic.
+- `mixed-load-test.js`: A complex scenario combining all tools with ramping virtual users.
 
 ### 9.2. Results presentation
-<!-- All prompts used with AI models should be listed, screens from Grafana dashboard should be attached. -->
-WIP
+
+#### I. Frontend (Chat UI) Results
+
+
+#### II. General System Metrics
+After performing the tests, the **Services Overview** dashboard provides a high-level view of how the infrastructure handled the load.
+- **Request Rate:** Shows the spikes in traffic for both REST (Backend) and MCP (FastMCP).
+- **Latency (P95):** Identifies which endpoints are the slowest under pressure.
+
+![General Services Metrics Placeholder](docs/img/grafana-general-overview.png)
+
+#### III. k6 Performance Metrics
+The **k6 Load Test** dashboard focuses on the client-side experience and protocol-level performance.
+- **Virtual Users (VUs):** The number of concurrent agents simulated.
+- **MCP Tool Duration:** The time taken specifically for the MCP tool execution loop.
+
+![k6 Performance Metrics Placeholder](docs/img/grafana-k6-overview.png)
+
+#### IV. Test-by-Test Analysis
+Below is a detailed breakdown of how specific tools behaved under load:
+
+**1. List Products (Search Performance)**
+Focuses on database query performance.
+- *Analysis:* Typically shows low latency and high throughput.
+![List Products Results Placeholder](docs/img/results-list-products.png)
+
+**2. Shipping Quotes (External API Simulation)**
+Simulates the impact of slow 3rd party integrations.
+- *Analysis:* Higher P95 latency due to simulated network delays in the backend logic.
+![Shipping Quote Results Placeholder](docs/img/results-shipping-quote.png)
+
+**3. Packaging Optimization (CPU Load)**
+Tests the system's ability to handle heavy computation.
+- *Analysis:* Highest CPU utilization and significantly increased response times as VUs increase.
+![Packaging Results Placeholder](docs/img/results-packaging.png)
+
+**4. Mixed Load (System Resilience)**
+A holistic test of all components working together.
+- *Analysis:* Shows how the system prioritizes or bottlenecks when various loads compete for resources.
+![Mixed Load Results Placeholder](docs/img/results-mixed-load.png)
 
 ## 10. Summary
 <!-- conclusions -->
