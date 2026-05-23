@@ -163,38 +163,47 @@ Requirements for the local machine:
 * Helm (used to install the k6 Operator).
 
 ## 7. Installation method
-The installation process involves starting the local Kubernetes cluster, building the necessary images inside it, and deploying the application containers.
+After cloning the repository, prepare the local environment variables.
 
-1. Start the Minikube cluster and deploy the components using the provided automation script:
+1. **Configure environment variables:**
+   Copy the example environment file and set your `GOOGLE_API_KEY`:
+   ```bash
+   cp .env.example .env
+   ```
+
+## 8. Demo deployment steps
+### 8.1. Configuration set-up
+The deployment process involves starting the local Kubernetes cluster, building the necessary images inside it, and deploying the application containers.
+
+1. **Start the Minikube cluster and deploy components:**
    ```bash
    ./k8s/start_minikube.sh
    ```
-   *This script will start Minikube, build Docker images locally in its registry (including the custom k6+xk6-mcp image), install the k6 Operator via Helm, and apply all manifests from the `k8s/` directory.*
-2. Kubernetes `ClusterIP` services are not directly accessible from the host. To access the system components, run port forwarding in separate terminal windows:
-   ```bash
-   # Access the MCP Server
-   kubectl port-forward service/mcp-service 8080:8080
+   *This script will start Minikube, build Docker images locally in its registry, install the k6 Operator via Helm, and apply all manifests from the `k8s/` directory.*
 
+2. **Establish port forwarding:**
+   Kubernetes `ClusterIP` services are not directly accessible from the host. Run these commands in separate terminal windows:
+   ```bash
    # Access the Frontend Chat UI
    kubectl port-forward service/frontend-service 8081:8081
 
    # Access Grafana Dashboards
    kubectl port-forward service/grafana-service 3000:3000
+   
+   # Optional: Access the MCP Server directly
+   kubectl port-forward service/mcp-service 8080:8080
    ```
-3. To verify the installation:
-   * **Automated Test:** Run the test script to verify MCP connectivity:
+
+3. **Verify the installation:**
+   * **Web UI:** Open `http://localhost:8081` to interact with the AI Agent.
+   * **Observability:** Open `http://localhost:3000` (default credentials: `admin/admin`) to view system metrics and dashboards.
+   * **Automated Connectivity Test:**
      ```bash
      python mcp-server/test_mcp_connection_k8s_or_compose.py
      ```
-   * **Web UI:** Open your browser and navigate to `http://localhost:8081` to interact with the AI Agent directly.
-   * **Observability:** Visit `http://localhost:3000` (default credentials: `admin/admin`) to view system metrics and k6 test results.
-
-## 8. Demo deployment steps:
-### 8.1. Configuration set-up
-WIP
 
 ### 8.2. Data preparation
-WIP
+Manual data preparation is not required. The Backend Service automatically seeds the SQLite database with a default product catalog (`backend/products.csv`) upon its first startup.
 
 ## 9. Demo description
 ### 9.1. Execution procedure
