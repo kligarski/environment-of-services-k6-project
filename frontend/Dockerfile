@@ -20,7 +20,7 @@ COPY agent ./agent
 # 8081 - Chainlit frontend
 EXPOSE 8081
 
-# Set environment defaults (can be overridden via docker-compose)
+# Set environment defaults
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app:$PYTHONPATH
 

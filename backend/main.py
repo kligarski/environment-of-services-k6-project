@@ -34,12 +34,14 @@ def get_db():
 
 
 @app.get("/health")
-def health_check():
+async def health_check():
     return {"status": "ok"}
 
 
 @app.get("/products", response_model=List[schemas.Product])
-def get_products(query: Optional[str] = Query(None), db: Session = Depends(get_db)):
+async def get_products(
+    query: Optional[str] = Query(None), db: Session = Depends(get_db)
+):
     products_query = db.query(Product)
     if query:
         products_query = products_query.filter(Product.name.ilike(f"%{query}%"))

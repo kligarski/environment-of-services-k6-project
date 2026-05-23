@@ -146,6 +146,10 @@ The architecture is designed using a microservices approach and adapted for depl
     *   **Services Overview** — backend and MCP server HTTP metrics (request rate, P95 latency).
     *   **k6 Load Test** — k6 test metrics (virtual users, MCP request rate and duration, iteration duration).
 
+*   **Frontend (Chainlit):** A web-based chatbot interface that provides a user-friendly way to interact with the AI Agent. Deployed as a single replica.
+*   **Agent (LangChain):** The orchestrator component (integrated with the Frontend) that uses the ReAct pattern to interpret user queries, select appropriate tools from the MCP server, and generate responses.
+*   **Ollama:** A local LLM provider deployed within the cluster, allowing for completely offline AI interactions using models like Llama 3.2.
+
 ## 6. Environment configuration description
 The primary demonstration environment is built around Kubernetes to allow for load testing and production environment simulation. 
 
@@ -156,8 +160,6 @@ Requirements for the local machine:
 * Minikube and the `kubectl` tool configured to use the Minikube context.
 * Helm (used to install the k6 Operator).
 
-*(Note: While Kubernetes is the target environment, the repository also includes a Docker Compose configuration which can be optionally used for quick local development and debugging.)*
-
 ## 7. Installation method
 The installation process involves starting the local Kubernetes cluster, building the necessary images inside it, and deploying the application containers.
 
@@ -166,21 +168,24 @@ The installation process involves starting the local Kubernetes cluster, buildin
    ./k8s/start_minikube.sh
    ```
    *This script will start Minikube, build Docker images locally in its registry (including the custom k6+xk6-mcp image), install the k6 Operator via Helm, and apply all manifests from the `k8s/` directory.*
-2. Kubernetes `ClusterIP` services are not directly accessible from the host. To access the MCP server, run port forwarding:
+2. Kubernetes `ClusterIP` services are not directly accessible from the host. To access the system components, run port forwarding in separate terminal windows:
    ```bash
+   # Access the MCP Server
    kubectl port-forward service/mcp-service 8080:8080
-   ```
-3. To verify the installation, run the test script in a new terminal window:
-   ```bash
-   python mcp-server/test_mcp_connection_k8s_or_compose.py
-   ```
 
-**Optional: Lightweight Development Setup**
-For simple code development without spinning up Minikube, you can optionally use Docker Compose:
-```bash
-docker-compose up --build -d
-```
-The Backend will be available at `http://localhost:8000` and the MCP Server at `http://localhost:8080`.
+   # Access the Frontend Chat UI
+   kubectl port-forward service/frontend-service 8081:8081
+
+   # Access Grafana Dashboards
+   kubectl port-forward service/grafana-service 3000:3000
+   ```
+3. To verify the installation:
+   * **Automated Test:** Run the test script to verify MCP connectivity:
+     ```bash
+     python mcp-server/test_mcp_connection_k8s_or_compose.py
+     ```
+   * **Web UI:** Open your browser and navigate to `http://localhost:8081` to interact with the AI Agent directly.
+   * **Observability:** Visit `http://localhost:3000` (default credentials: `admin/admin`) to view system metrics and k6 test results.
 
 ## 8. Demo deployment steps:
 ### 8.1. Configuration set-up

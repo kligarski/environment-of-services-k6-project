@@ -41,12 +41,8 @@ This directory contains Kubernetes manifests and scripts to run the logistics ba
    ```
    Then open `http://localhost:8081`.
 
-4. **(Optional) Enable Gemini backend in frontend**:
-   Create a Kubernetes secret with your Google API key.
-   ```bash
-   kubectl create secret generic llm-secrets \
-     --from-literal=google_api_key="YOUR_GOOGLE_API_KEY"
-   ```
+4. **Configuration**:
+   Ensure you have a `.env` file in the project root. The `start_minikube.sh` script automatically creates a Kubernetes secret named `app-secrets` from this file.
 
 ###  MCP-focused stack only (without frontend/Ollama)
 

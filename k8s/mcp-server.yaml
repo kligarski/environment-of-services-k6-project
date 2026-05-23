@@ -15,22 +15,39 @@ spec:
         app: mcp-server
     spec:
       containers:
-      - name: mcp-server
-        image: mcp-server:latest
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 8080
-        env:
-        - name: BACKEND_URL
-          value: "http://backend-service:8000"
-        - name: PYTHONUNBUFFERED
-          value: "1"
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://otel-collector-service:4317"
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
+        - name: mcp-server
+          image: mcp-server:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          envFrom:
+            - secretRef:
+                name: app-secrets
+          env:
+            - name: BACKEND_URL
+              value: "http://backend-service:8000"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-collector-service:4317"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
 ---
 apiVersion: v1
 kind: Service
