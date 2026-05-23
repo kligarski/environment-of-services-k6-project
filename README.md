@@ -148,7 +148,9 @@ The architecture is designed using a microservices approach and adapted for depl
 
 *   **Frontend (Chainlit):** A web-based chatbot interface that provides a user-friendly way to interact with the AI Agent. Deployed as a single replica.
 *   **Agent (LangChain):** The orchestrator component (integrated with the Frontend) that uses the ReAct pattern to interpret user queries, select appropriate tools from the MCP server, and generate responses.
-*   **Ollama:** A local LLM provider deployed within the cluster, allowing for completely offline AI interactions using models like Llama 3.2.
+*   **Ollama / Gemini:** The environment supports switching between local and cloud-based LLM execution to demonstrate flexibility and performance trade-offs:
+    *   **Gemini:** A cloud-based LLM (via API) providing high reasoning performance and native tool calling. It is generally faster for complex tasks but requires external connectivity.
+    *   **Ollama:** A local LLM provider deployed within the cluster. While it allows for completely offline and private interactions, local execution is typically slower than cloud APIs, and lighter models (like Llama 3.2 1B/3B) may exhibit lower "intelligence" or accuracy in complex tool selection compared to larger cloud models.
 
 ## 6. Environment configuration description
 The primary demonstration environment is built around Kubernetes to allow for load testing and production environment simulation. 
