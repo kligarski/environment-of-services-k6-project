@@ -249,44 +249,140 @@ Run the load tests using the provided script or individually via `kubectl`.
 ### 9.2. Results presentation
 
 #### I. Frontend (Chat UI) Results
+##### Gemini
+Gemini quickly responded to all questions.
 
+![Gemini Question 1 Part 1](docs/img/presentation/frontend/gemini_q1_1.png)
+![Gemini Question 1 Part 2](docs/img/presentation/frontend/gemini_q1_2.png)
+![Gemini Question 2](docs/img/presentation/frontend/gemini_q2.png)
+![Gemini Question 3](docs/img/presentation/frontend/gemini_q3.png)
+
+##### Ollama (qwen3.5:4b)
+Local model (`qwen3.5:4b`) took a long time to answer the questions. First question alone took over 10 minutes to respond.
+
+![Ollama Question 1 Part 1](docs/img/presentation/frontend/ollama_q1_1.png)
+![Ollama Question 1 Part 2](docs/img/presentation/frontend/ollama_q1_2.png)
+![Ollama Question 2](docs/img/presentation/frontend/ollama_q2.png)
+![Ollama Question 3](docs/img/presentation/frontend/ollama_q3.png)
 
 #### II. General System Metrics
 After performing the tests, the **Services Overview** dashboard provides a high-level view of how the infrastructure handled the load.
 - **Request Rate:** Shows the spikes in traffic for both REST (Backend) and MCP (FastMCP).
-- **Latency (P95):** Identifies which endpoints are the slowest under pressure.
+- **Latency (P95):** Shows the 95th percentile latency for both backend and MCP server.
 
-![General Services Metrics Placeholder](docs/img/grafana-general-overview.png)
+![General Services Metrics](docs/img/presentation/grafana/grafana_3_services_after_tests.png)
 
 #### III. k6 Performance Metrics
 The **k6 Load Test** dashboard focuses on the client-side experience and protocol-level performance.
 - **Virtual Users (VUs):** The number of concurrent agents simulated.
-- **MCP Tool Duration:** The time taken specifically for the MCP tool execution loop.
+- **Throuput by Tool:** Shows the number of requests handled per second by each tool.
+- **Latency by Tool (P95):** Shows the 95th percentile latency for each tool.
+- **Iteration Duration:** Shows the duration of each test iteration.
 
-![k6 Performance Metrics Placeholder](docs/img/grafana-k6-overview.png)
+![k6 Performance Metrics](docs/img/presentation/grafana/grafana_4_k6_all_after_tests.png)
 
 #### IV. Test-by-Test Analysis
 Below is a detailed breakdown of how specific tools behaved under load:
 
 **1. List Products (Search Performance)**
-Focuses on database query performance.
-- *Analysis:* Typically shows low latency and high throughput.
-![List Products Results Placeholder](docs/img/results-list-products.png)
+This test simulates high-frequency product searching. As a read-only, lightweight operation, it exhibits the highest throughput and lowest latency.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.95' rate=100.00%
+
+    iteration_duration
+    ✓ 'p(95)<3000' p(95)=1.17s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 854     14.033951/s
+    checks_succeeded...: 100.00% 854 out of 854
+    checks_failed......: 0.00%   0 out of 854
+
+    ✓ list_products returns valid response
+```
+
+![List Products Results](docs/img/presentation/grafana/grafana_7_k6_products_list.png)
 
 **2. Shipping Quotes (External API Simulation)**
-Simulates the impact of slow 3rd party integrations.
-- *Analysis:* Higher P95 latency due to simulated network delays in the backend logic.
-![Shipping Quote Results Placeholder](docs/img/results-shipping-quote.png)
+This scenario tests the system's ability to handle simulated external API latency. The backend interacts with four virtual shipping providers, each introducing randomized network-like delays.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.95' rate=100.00%
+
+    iteration_duration
+    ✓ 'p(95)<8000' p(95)=3.58s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 340     5.534576/s
+    checks_succeeded...: 100.00% 340 out of 340
+    checks_failed......: 0.00%   0 out of 340
+
+    ✓ shipping quote returns valid response
+```
+
+![Shipping Quote Results](docs/img/presentation/grafana/grafana_8_k6_shipping_quote.png)
 
 **3. Packaging Optimization (CPU Load)**
-Tests the system's ability to handle heavy computation.
-- *Analysis:* Highest CPU utilization and significantly increased response times as VUs increase.
-![Packaging Results Placeholder](docs/img/results-packaging.png)
+This test targets the most computationally expensive part of the system. The optimization algorithm includes an intentional CPU load, which, combined with high concurrency, results in increased latency and a slight drop in the success rate as the system reaches its resource limits.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.90' rate=96.41%
+
+    iteration_duration
+    ✓ 'p(95)<10000' p(95)=4.76s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 279    4.434887/s
+    checks_succeeded...: 96.41% 269 out of 279
+    checks_failed......: 3.58%  10 out of 279
+
+    ✗ packaging returns valid response
+      ↳  96% — ✓ 269 / ✗ 10
+```
+
+![Packaging Results](docs/img/presentation/grafana/grafana_9_k6_packaging.png)
 
 **4. Mixed Load (System Resilience)**
-A holistic test of all components working together.
-- *Analysis:* Shows how the system prioritizes or bottlenecks when various loads compete for resources.
-![Mixed Load Results Placeholder](docs/img/results-mixed-load.png)
+This final test combines all three tools (Product List, Shipping Quote, Packaging) in a single scenario with ramping virtual users. It demonstrates how the system handles a realistic, heterogeneous workload. The results show a 99.46% overall success rate, with the minor failures occurring exclusively in the resource-heavy packaging tool.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.95' rate=99.46%
+
+    iteration_duration
+    ✓ 'p(95)<10000' p(95)=5.78s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 1308   10.790427/s
+    checks_succeeded...: 99.46% 1301 out of 1308
+    checks_failed......: 0.53%  7 out of 1308
+
+    ✓ list products returns valid response
+    ✓ shipping quote returns valid response
+    ✗ optimize packaging returns valid response
+      ↳  98% — ✓ 429 / ✗ 7
+```
+
+![Mixed Load Results](docs/img/presentation/grafana/grafana_10_k6_mixed.png)
 
 ## 10. Summary
 <!-- conclusions -->
