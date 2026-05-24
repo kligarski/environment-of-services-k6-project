@@ -385,8 +385,23 @@ This final test combines all three tools (Product List, Shipping Quote, Packagin
 ![Mixed Load Results](docs/img/presentation/grafana/grafana_10_k6_mixed.png)
 
 ## 10. Summary
-<!-- conclusions -->
-WIP
+
+This project successfully demonstrated the application of load testing to Model Context Protocol (MCP) servers using the `xk6-mcp` extension. By simulating realistic interactions between AI agents and backend services, we validated the viability of k6 for evaluating tool-calling performance under stress.
+
+The implemented architecture showcased a robust, observable microservices environment deployed on Kubernetes. It seamlessly integrated modern AI orchestration tools (LangChain, Ollama, Gemini) with a functional web backend (FastAPI, SQLite) and a user-friendly interface (Chainlit).
+
+Furthermore, the comprehensive observability stack—powered by OpenTelemetry, Prometheus, and Grafana—provided actionable insights into system behavior. The collected metrics confirmed overall system stability during load tests while successfully identifying minor bottlenecks (such as a ~2% failure rate in complex packaging optimization requests), highlighting the effectiveness and necessity of this testing approach for AI-integrated applications.
 
 ## 11. References
-WIP
+
+* [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro)
+* [xk6-mcp Extension](https://github.com/grafana/xk6-mcp)
+* [Grafana k6](https://k6.io/)
+* [OpenTelemetry](https://opentelemetry.io/)
+* [Prometheus](https://prometheus.io/)
+* [Grafana](https://grafana.com/)
+* [Chainlit](https://docs.chainlit.io/)
+* [FastAPI](https://fastapi.tiangolo.com/)
+* [LangChain](https://python.langchain.com/)
+* [Ollama](https://ollama.com/)
+* [Kubernetes](https://kubernetes.io/)
