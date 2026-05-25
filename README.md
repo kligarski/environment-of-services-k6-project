@@ -132,23 +132,27 @@ The dashboards present key performance indicators such as request throughput, re
 The architecture is designed using a microservices approach and adapted for deployment in orchestrated (Kubernetes/Minikube) environments.
 
 *   **Backend Service (FastAPI):** A demo logistics system providing business logic for inventory and logistics management. It is intentionally designed with artificial delays and CPU loads to simulate real-world processing for performance testing.
+    *   **Orchestration:** Deployed with **2 replicas** for high availability and load distribution. Includes **Liveness and Readiness probes** pointing to `/health`.
     *   `GET /products`: Provides product discovery with name filtering. Returns details like price, weight, and dimensions.
     *   `POST /shipping/quote`: Calculates shipping estimates. It simulates concurrent interactions with four different shipping providers' APIs, each with randomized network-like latency.
     *   `POST /packaging/optimize`: Implements a heuristic packaging algorithm. It calculates how to fit multiple items into standard box sizes and includes an artificial CPU-intensive load to simulate heavy computational tasks.
     *   **Data Persistence:** Uses a local **SQLite** database for storing product information.
 *   **MCP Server (FastMCP):** Implements the Model Context Protocol and acts as a gateway for LLM Agents.
+    *   **Orchestration:** Deployed with **2 replicas** to handle concurrent agent requests. Monitored via **TCP health checks** on port 8080.
     *   **Transport:** Uses **Streamable HTTP**, allowing for both standard request-response and SSE-based notifications/streaming.
     *   **Tooling:** Exposes three main tools: `list_products`, `get_shipping_quote`, and `optimize_packaging`, which directly map to the backend's REST endpoints.
 
-*   **OTel Collector:** Receives metrics from all components via OTLP/gRPC (port 4317) and forwards them to Prometheus using Remote Write.
+*   **OTel Collector:** Receives metrics from all components via OTLP/gRPC (port 4317) and forwards them to Prometheus using Remote Write. Deployed as a single instance.
 *   **Prometheus:** Configured with `--web.enable-remote-write-receiver` to accept pushed metrics. No scrape targets — all data comes from the OTel Collector.
 *   **Grafana:** Dashboards are auto-provisioned at startup via ConfigMaps. Two dashboards are available:
     *   **Services Overview** — backend and MCP server HTTP metrics (request rate, P95 latency).
     *   **k6 Load Test** — k6 test metrics (virtual users, MCP request rate and duration, iteration duration).
 
-*   **Frontend (Chainlit):** A web-based chatbot interface that provides a user-friendly way to interact with the AI Agent. Deployed as a single replica.
+*   **Frontend (Chainlit):** A web-based chatbot interface that provides a user-friendly way to interact with the AI Agent. Deployed as a single replica with **TCP health checks**.
 *   **Agent (LangChain):** The orchestrator component (integrated with the Frontend) that uses the ReAct pattern to interpret user queries, select appropriate tools from the MCP server, and generate responses.
-*   **Ollama:** A local LLM provider deployed within the cluster, allowing for completely offline AI interactions using models like Llama 3.2.
+*   **Ollama / Gemini:** The environment supports switching between local and cloud-based LLM execution to demonstrate flexibility and performance trade-offs:
+    *   **Gemini:** A cloud-based LLM (via API) providing high reasoning performance and native tool calling. It is generally faster for complex tasks but requires external connectivity.
+    *   **Ollama:** A local LLM provider deployed within the cluster as a **single replica** with persistent storage for models. While it allows for completely offline and private interactions, local execution is typically slower than cloud APIs, and lighter models (like Llama 3.2 1B/3B) may exhibit lower "intelligence" or accuracy in complex tool selection compared to larger cloud models.
 
 ## 6. Environment configuration description
 The primary demonstration environment is built around Kubernetes to allow for load testing and production environment simulation. 
@@ -161,50 +165,243 @@ Requirements for the local machine:
 * Helm (used to install the k6 Operator).
 
 ## 7. Installation method
-The installation process involves starting the local Kubernetes cluster, building the necessary images inside it, and deploying the application containers.
+After cloning the repository, prepare the local environment variables.
 
-1. Start the Minikube cluster and deploy the components using the provided automation script:
+1. **Configure environment variables:**
+   Copy the example environment file and set your `GOOGLE_API_KEY`:
+   ```bash
+   cp .env.example .env
+   ```
+
+## 8. Demo deployment steps
+### 8.1. Configuration set-up
+The deployment process involves starting the local Kubernetes cluster, building the necessary images inside it, and deploying the application containers.
+
+1. **Start the Minikube cluster and deploy components:**
    ```bash
    ./k8s/start_minikube.sh
    ```
-   *This script will start Minikube, build Docker images locally in its registry (including the custom k6+xk6-mcp image), install the k6 Operator via Helm, and apply all manifests from the `k8s/` directory.*
-2. Kubernetes `ClusterIP` services are not directly accessible from the host. To access the system components, run port forwarding in separate terminal windows:
-   ```bash
-   # Access the MCP Server
-   kubectl port-forward service/mcp-service 8080:8080
+   *This script will start Minikube, build Docker images locally in its registry, install the k6 Operator via Helm, and apply all manifests from the `k8s/` directory.*
 
+2. **Establish port forwarding:**
+   Kubernetes `ClusterIP` services are not directly accessible from the host. Run these commands in separate terminal windows:
+   ```bash
    # Access the Frontend Chat UI
    kubectl port-forward service/frontend-service 8081:8081
 
    # Access Grafana Dashboards
    kubectl port-forward service/grafana-service 3000:3000
+   
+   # Optional: Access the MCP Server directly
+   kubectl port-forward service/mcp-service 8080:8080
    ```
-3. To verify the installation:
-   * **Automated Test:** Run the test script to verify MCP connectivity:
+
+3. **Verify the installation:**
+   * **Web UI:** Open `http://localhost:8081` to interact with the AI Agent.
+   * **Observability:** Open `http://localhost:3000` (default credentials: `admin/admin`) to view system metrics and dashboards.
+   * **Automated Connectivity Test:**
      ```bash
      python mcp-server/test_mcp_connection_k8s_or_compose.py
      ```
-   * **Web UI:** Open your browser and navigate to `http://localhost:8081` to interact with the AI Agent directly.
-   * **Observability:** Visit `http://localhost:3000` (default credentials: `admin/admin`) to view system metrics and k6 test results.
-
-## 8. Demo deployment steps:
-### 8.1. Configuration set-up
-WIP
 
 ### 8.2. Data preparation
-WIP
+Manual data preparation is not required. The Backend Service automatically seeds the SQLite database with a default product catalog (`backend/products.csv`) upon its first startup.
 
 ## 9. Demo description
 ### 9.1. Execution procedure
-WIP
+
+#### I. Functional Testing (Frontend)
+1. Access the Chat UI at `http://localhost:8081`.
+2. **Phase A: Cloud LLM (Gemini):**
+   - Ensure the Gemini profile is selected.
+   - **Prompt 1 (Product Discovery):** *"Show me available laptops"*
+     - *Expected result:* The agent should quickly use the `list_products` tool and show various laptops including e.g. "Dellta Laptop Pro" and "Macrosoft Laptop Lite".
+   - **Prompt 2 (Shipping):** *"How much would it cost to ship 2 Dellta Laptop Pro and 5 Macrosoft Laptop Lite?"*
+     - *Expected result:* The agent should call `get_shipping_quote` and provide a cost estimate.
+   - **Prompt 3 (Packaging):** *"How should I pack these products?"*
+     - *Expected result:* The agent should call `optimize_packaging` and provide a box distribution strategy.
+3. **Phase B: Local LLM (Ollama):**
+   - Switch the profile to **Ollama** in the UI.
+   - Run the same prompts as above.
+   - **Important Note:** Local execution via Ollama might take significantly longer. Additionally, lighter models are generally "less intelligent" and may struggle with complex tool selection compared to Gemini.
+
+#### II. Observability Baseline
+1. Open Grafana at `http://localhost:3000`.
+2. Navigate to the **Services Overview** dashboard.
+3. Observe the baseline (idle) metrics for the Backend and MCP server.
+
+#### III. Load Testing (k6)
+Run the load tests using the provided script or individually via `kubectl`.
+
+**To run all tests sequentially:**
+```bash
+./k6/run-all-tests.sh
+```
+
+**Individual tests (available in `k6/tests/scripts/`):**
+- `connection-test.js`: Verifies the k6 client can establish a handshake with the MCP server.
+- `validation-test.js`: Validates that the MCP server correctly handles tool discovery and JSON-RPC responses.
+- `list-products-load-test.js`: High-frequency product searching.
+- `shipping-quote-load-test.js`: Simulates external shipping provider API latency.
+- `packaging-load-test.js`: Tests CPU-intensive optimization logic.
+- `mixed-load-test.js`: A complex scenario combining all tools with ramping virtual users.
 
 ### 9.2. Results presentation
-<!-- All prompts used with AI models should be listed, screens from Grafana dashboard should be attached. -->
-WIP
+
+#### I. Frontend (Chat UI) Results
+##### Gemini
+Gemini quickly responded to all questions.
+
+![Gemini Question 1 Part 1](docs/img/presentation/frontend/gemini_q1_1.png)
+![Gemini Question 1 Part 2](docs/img/presentation/frontend/gemini_q1_2.png)
+![Gemini Question 2](docs/img/presentation/frontend/gemini_q2.png)
+![Gemini Question 3](docs/img/presentation/frontend/gemini_q3.png)
+
+##### Ollama (qwen3.5:4b)
+Local model (`qwen3.5:4b`) took a long time to answer the questions. First question alone took over 10 minutes to respond.
+
+![Ollama Question 1 Part 1](docs/img/presentation/frontend/ollama_q1_1.png)
+![Ollama Question 1 Part 2](docs/img/presentation/frontend/ollama_q1_2.png)
+![Ollama Question 2](docs/img/presentation/frontend/ollama_q2.png)
+![Ollama Question 3](docs/img/presentation/frontend/ollama_q3.png)
+
+#### II. General System Metrics
+After performing the tests, the **Services Overview** dashboard provides a high-level view of how the infrastructure handled the load.
+- **Request Rate:** Shows the spikes in traffic for both REST (Backend) and MCP (FastMCP).
+- **Latency (P95):** Shows the 95th percentile latency for both backend and MCP server.
+
+![General Services Metrics](docs/img/presentation/grafana/grafana_3_services_after_tests.png)
+
+#### III. k6 Performance Metrics
+The **k6 Load Test** dashboard focuses on the client-side experience and protocol-level performance.
+- **Virtual Users (VUs):** The number of concurrent agents simulated.
+- **Throuput by Tool:** Shows the number of requests handled per second by each tool.
+- **Latency by Tool (P95):** Shows the 95th percentile latency for each tool.
+- **Iteration Duration:** Shows the duration of each test iteration.
+
+![k6 Performance Metrics](docs/img/presentation/grafana/grafana_4_k6_all_after_tests.png)
+
+#### IV. Test-by-Test Analysis
+Below is a detailed breakdown of how specific tools behaved under load:
+
+**1. List Products (Search Performance)**
+This test simulates high-frequency product searching. As a read-only, lightweight operation, it exhibits the highest throughput and lowest latency.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.95' rate=100.00%
+
+    iteration_duration
+    ✓ 'p(95)<3000' p(95)=1.17s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 854     14.033951/s
+    checks_succeeded...: 100.00% 854 out of 854
+    checks_failed......: 0.00%   0 out of 854
+
+    ✓ list_products returns valid response
+```
+
+![List Products Results](docs/img/presentation/grafana/grafana_7_k6_products_list.png)
+
+**2. Shipping Quotes (External API Simulation)**
+This scenario tests the system's ability to handle simulated external API latency. The backend interacts with four virtual shipping providers, each introducing randomized network-like delays.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.95' rate=100.00%
+
+    iteration_duration
+    ✓ 'p(95)<8000' p(95)=3.58s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 340     5.534576/s
+    checks_succeeded...: 100.00% 340 out of 340
+    checks_failed......: 0.00%   0 out of 340
+
+    ✓ shipping quote returns valid response
+```
+
+![Shipping Quote Results](docs/img/presentation/grafana/grafana_8_k6_shipping_quote.png)
+
+**3. Packaging Optimization (CPU Load)**
+This test targets the most computationally expensive part of the system. The optimization algorithm includes an intentional CPU load, which, combined with high concurrency, results in increased latency and a slight drop in the success rate as the system reaches its resource limits.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.90' rate=96.41%
+
+    iteration_duration
+    ✓ 'p(95)<10000' p(95)=4.76s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 279    4.434887/s
+    checks_succeeded...: 96.41% 269 out of 279
+    checks_failed......: 3.58%  10 out of 279
+
+    ✗ packaging returns valid response
+      ↳  96% — ✓ 269 / ✗ 10
+```
+
+![Packaging Results](docs/img/presentation/grafana/grafana_9_k6_packaging.png)
+
+**4. Mixed Load (System Resilience)**
+This final test combines all three tools (Product List, Shipping Quote, Packaging) in a single scenario with ramping virtual users. It demonstrates how the system handles a realistic, heterogeneous workload. The results show a 99.46% overall success rate, with the minor failures occurring exclusively in the resource-heavy packaging tool.
+
+```text
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.95' rate=99.46%
+
+    iteration_duration
+    ✓ 'p(95)<10000' p(95)=5.78s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 1308   10.790427/s
+    checks_succeeded...: 99.46% 1301 out of 1308
+    checks_failed......: 0.53%  7 out of 1308
+
+    ✓ list products returns valid response
+    ✓ shipping quote returns valid response
+    ✗ optimize packaging returns valid response
+      ↳  98% — ✓ 429 / ✗ 7
+```
+
+![Mixed Load Results](docs/img/presentation/grafana/grafana_10_k6_mixed.png)
 
 ## 10. Summary
-<!-- conclusions -->
-WIP
+
+This project successfully demonstrated the application of load testing to Model Context Protocol (MCP) servers using the `xk6-mcp` extension. By simulating realistic interactions between AI agents and backend services, we validated the viability of k6 for evaluating tool-calling performance under stress.
+
+The implemented architecture showcased a robust, observable microservices environment deployed on Kubernetes. It seamlessly integrated modern AI orchestration tools (LangChain, Ollama, Gemini) with a functional web backend (FastAPI, SQLite) and a user-friendly interface (Chainlit).
+
+Furthermore, the comprehensive observability stack—powered by OpenTelemetry, Prometheus, and Grafana—provided actionable insights into system behavior. The collected metrics confirmed overall system stability during load tests while successfully identifying minor bottlenecks (such as a ~2% failure rate in complex packaging optimization requests), highlighting the effectiveness and necessity of this testing approach for AI-integrated applications.
 
 ## 11. References
-WIP
+
+* [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro)
+* [xk6-mcp Extension](https://github.com/grafana/xk6-mcp)
+* [Grafana k6](https://k6.io/)
+* [OpenTelemetry](https://opentelemetry.io/)
+* [Prometheus](https://prometheus.io/)
+* [Grafana](https://grafana.com/)
+* [Chainlit](https://docs.chainlit.io/)
+* [FastAPI](https://fastapi.tiangolo.com/)
+* [LangChain](https://python.langchain.com/)
+* [Ollama](https://ollama.com/)
+* [Kubernetes](https://kubernetes.io/)
